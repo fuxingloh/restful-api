@@ -46,7 +46,7 @@ public abstract class RestfulClient {
     }
 
     protected RestfulRequest doHead(String path) {
-        RestfulRequest request = new RestfulRequest(HttpMethod.HEAD, path(path));
+        RestfulRequest request = new RestfulRequest.Head(path(path));
         return before(request);
     }
 

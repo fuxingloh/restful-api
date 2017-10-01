@@ -4,8 +4,8 @@ allprojects {
     apply plugin: "com.jfrog.artifactory"
     apply plugin: 'maven-publish'
 
-    group 'munch'
-    version '1.0.0-SNAPSHOT'
+    group 'munch.restful-api'
+    version '1.0.0'
 
     sourceCompatibility = 1.8
     targetCompatibility = 1.8

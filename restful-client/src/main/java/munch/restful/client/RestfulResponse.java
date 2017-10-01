@@ -12,6 +12,7 @@ import munch.restful.core.exception.JsonException;
 import munch.restful.core.exception.StructuredException;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -29,7 +30,7 @@ public class RestfulResponse {
 
     private final JsonNode jsonNode;
     private final RestfulMeta meta;
-    private final HttpResponse<String> response;
+    private final HttpResponse response;
 
     /**
      * For error parser, as long there is error node it is consider a error and will be converted to Structured Error
@@ -69,6 +70,19 @@ public class RestfulResponse {
 
         // Then else if structured exist, throw it
         if (structured != null) throw structured;
+    }
+
+    /**
+     * For response without body, e.g head
+     *
+     * @param response response
+     */
+    RestfulResponse(HttpResponse<InputStream> response) {
+        this.response = response;
+        this.jsonNode = objectMapper.createObjectNode()
+                .putObject("meta")
+                .put("code", response.getStatus());
+        this.meta = RestfulMeta.builder().code(response.getStatus()).build();
     }
 
     public int getStatus() {

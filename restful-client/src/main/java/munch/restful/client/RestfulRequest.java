@@ -226,7 +226,7 @@ public class RestfulRequest {
      * @param handler handler of response
      * @return RestfulResponse
      */
-    private RestfulResponse executeResponse(BiConsumer<RestfulResponse, StructuredException> handler) {
+    protected RestfulResponse executeResponse(BiConsumer<RestfulResponse, StructuredException> handler) {
         try {
             return new RestfulResponse(this, request.asString(), handler);
         } catch (Exception e) {
@@ -248,5 +248,40 @@ public class RestfulRequest {
      */
     public RestfulResponse hasCode(int... codes) {
         return asResponse().hasCode(codes);
+    }
+
+    static class Head extends RestfulRequest {
+
+        /**
+         * @param url base url without /
+         */
+        Head(String url) {
+            super(HttpMethod.HEAD, url);
+        }
+
+        /**
+         * Handler will handle StructuredException
+         * For non structured exception it will handled by catch(Exception) below
+         *
+         * @param handler handler of response
+         * @return RestfulResponse
+         */
+        @Override
+        protected RestfulResponse executeResponse(BiConsumer<RestfulResponse, StructuredException> handler) {
+            try {
+                RestfulResponse response = new RestfulResponse(request.asBinary());
+                handler.accept(response, null);
+                return response;
+            } catch (Exception e) {
+                // If is structured error just throw
+                if (e instanceof StructuredException) {
+                    throw (StructuredException) e;
+                }
+
+                // Try parse error
+                ExceptionParser.parse(e);
+                throw new UnknownException(e);
+            }
+        }
     }
 }
