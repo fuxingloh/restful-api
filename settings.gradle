@@ -1,0 +1,5 @@
+rootProject.name = 'restful-api'
+
+include 'restful-server'
+include 'restful-client'
+include 'restful-core'
