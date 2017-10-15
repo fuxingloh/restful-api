@@ -53,7 +53,8 @@ public class RestfulResponse {
             try {
                 meta = JsonUtils.toObject(getNode().path("meta"), RestfulMeta.class);
             } catch (JsonException e) {
-                throw new RuntimeException("RestfulMeta cannot be parsed.", e);
+                throw new RuntimeException("RestfulMeta cannot be parsed. " +
+                        "Implementation of result does not adhere to required restful structure. \n" + response.getBody(), e);
             }
         } catch (IOException e) {
             // Can be added to handle 504 error from AWS ELB
