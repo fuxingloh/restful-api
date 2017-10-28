@@ -19,6 +19,10 @@ import java.util.function.Function;
 public final class JsonUtils {
     public static final ObjectMapper objectMapper = new ObjectMapper();
 
+    public static JsonNode toTree(Object object) {
+        return objectMapper.valueToTree(object);
+    }
+
     public static <T> T toObject(JsonNode node, Class<T> clazz) {
         try {
             return objectMapper.treeToValue(node, clazz);
