@@ -131,7 +131,6 @@ public class RestfulServer {
     protected void handleException() {
         logger.info("Adding exception handling for CodeException.");
         Spark.exception(CodeException.class, (exception, request, response) -> {
-            logger.trace("Code exception thrown", exception);
             int code = ((CodeException) exception).getCode();
             try {
                 response.status(code);

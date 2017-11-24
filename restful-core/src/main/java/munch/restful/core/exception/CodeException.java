@@ -22,7 +22,6 @@ public class CodeException extends RuntimeException {
      *     }
      * }
      * </pre>
-     * Code exception log is set to trace only
      *
      * @param code code
      */

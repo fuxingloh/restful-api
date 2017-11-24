@@ -77,6 +77,7 @@ public interface JsonService extends RestfulService {
      * @param path  the path
      * @param route json node route
      */
+    @Deprecated
     default void POST(String path, JsonRoute.Node route) {
         Spark.post(path, route, toJson());
     }
@@ -99,6 +100,7 @@ public interface JsonService extends RestfulService {
      * @param acceptType the request accept type
      * @param route      json node route
      */
+    @Deprecated
     default void POST(String path, String acceptType, JsonRoute.Node route) {
         Spark.post(path, acceptType, route, toJson);
     }
@@ -119,6 +121,7 @@ public interface JsonService extends RestfulService {
      * @param path  the path
      * @param route json node route
      */
+    @Deprecated
     default void PUT(String path, JsonRoute.Node route) {
         Spark.put(path, route, toJson());
     }
@@ -141,6 +144,7 @@ public interface JsonService extends RestfulService {
      * @param acceptType the request accept type
      * @param route      json node route
      */
+    @Deprecated
     default void PUT(String path, String acceptType, JsonRoute.Node route) {
         Spark.put(path, acceptType, route, toJson);
     }
@@ -161,6 +165,7 @@ public interface JsonService extends RestfulService {
      * @param path  the path
      * @param route json node route
      */
+    @Deprecated
     default void DELETE(String path, JsonRoute.Node route) {
         Spark.delete(path, route, toJson());
     }
@@ -194,6 +199,7 @@ public interface JsonService extends RestfulService {
      * @return json body as @code{<T>}
      * @throws JsonException json exception
      */
+    @Deprecated
     default <T> T toObject(JsonNode node, Class<T> clazz) throws JsonException {
         try {
             return objectMapper.treeToValue(node, clazz);
@@ -206,6 +212,7 @@ public interface JsonService extends RestfulService {
      * @param object object
      * @return json object write to json string
      */
+    @Deprecated
     default JsonNode toTree(Object object) {
         return objectMapper.valueToTree(object);
     }
@@ -213,6 +220,7 @@ public interface JsonService extends RestfulService {
     /**
      * @return new object node for consumption
      */
+    @Deprecated
     default ObjectNode newNode() {
         return objectMapper.createObjectNode();
     }
@@ -220,6 +228,7 @@ public interface JsonService extends RestfulService {
     /**
      * @return new array node for consumption
      */
+    @Deprecated
     default ArrayNode newArrayNode() {
         return objectMapper.createArrayNode();
     }
@@ -229,8 +238,8 @@ public interface JsonService extends RestfulService {
      * @return object node with meta only
      */
     default ObjectNode nodes(RestfulMeta meta) {
-        ObjectNode nodes = newNode();
-        nodes.set("meta", toTree(meta));
+        ObjectNode nodes = objectMapper.createObjectNode();
+        nodes.set("meta", objectMapper.valueToTree(meta));
         return nodes;
     }
 
@@ -240,8 +249,8 @@ public interface JsonService extends RestfulService {
      * @return object node with meta and data node
      */
     default ObjectNode nodes(RestfulMeta meta, JsonNode data) {
-        ObjectNode nodes = newNode();
-        nodes.set("meta", toTree(meta));
+        ObjectNode nodes = objectMapper.createObjectNode();
+        nodes.set("meta", objectMapper.valueToTree(meta));
         nodes.set("data", data);
         return nodes;
     }
@@ -252,8 +261,8 @@ public interface JsonService extends RestfulService {
      * @return object node with meta and data node
      */
     default ObjectNode nodes(int code, JsonNode data) {
-        ObjectNode nodes = newNode();
-        nodes.set("meta", newNode().put("code", code));
+        ObjectNode nodes = objectMapper.createObjectNode();
+        nodes.putObject("meta").put("code", code);
         nodes.set("data", data);
         return nodes;
     }
@@ -263,8 +272,8 @@ public interface JsonService extends RestfulService {
      * @return ObjectNode with meta
      */
     default ObjectNode nodes(int code) {
-        ObjectNode nodes = newNode();
-        nodes.set("meta", newNode().put("code", code));
+        ObjectNode nodes = objectMapper.createObjectNode();
+        nodes.putObject("meta").put("code", code);
         return nodes;
     }
 
@@ -274,6 +283,6 @@ public interface JsonService extends RestfulService {
      * @return object node with meta and data node
      */
     default ObjectNode nodes(int code, Object object) {
-        return nodes(code, toTree(object));
+        return nodes(code, objectMapper.valueToTree(object));
     }
 }

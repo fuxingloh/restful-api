@@ -1,5 +1,6 @@
 package munch.restful.core;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
@@ -18,6 +19,14 @@ import java.util.function.Function;
  */
 public final class JsonUtils {
     public static final ObjectMapper objectMapper = new ObjectMapper();
+
+    public static String toJsonString(Object object) {
+        try {
+            return objectMapper.writeValueAsString(object);
+        } catch (JsonProcessingException e) {
+            throw new JsonException(e);
+        }
+    }
 
     public static JsonNode toTree(Object object) {
         return objectMapper.valueToTree(object);

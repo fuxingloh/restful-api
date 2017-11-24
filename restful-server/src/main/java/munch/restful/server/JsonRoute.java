@@ -27,7 +27,15 @@ public interface JsonRoute extends Route {
 
     @Override
     default Object handle(Request request, Response response) throws Exception {
-        return handle(new JsonCall(request, response));
+        Object object = handle(new JsonCall(request, response));
+        if (object == null) return null;
+
+        if (object instanceof JsonNode) {
+            // Set status code
+            response.status(((JsonNode) object).path("meta")
+                    .path("code").asInt(200));
+        }
+        return object;
     }
 
     @FunctionalInterface
@@ -43,6 +51,7 @@ public interface JsonRoute extends Route {
          */
         Object handle(JsonCall call, JsonNode node) throws Exception;
 
+        @Override
         default Object handle(JsonCall call) throws Exception {
             return handle(call, call.bodyAsJson());
         }
