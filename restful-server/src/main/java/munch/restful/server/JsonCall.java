@@ -1,14 +1,19 @@
 package munch.restful.server;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.exceptions.JWTDecodeException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import munch.restful.core.JsonUtils;
+import munch.restful.core.exception.CodeException;
 import munch.restful.core.exception.JsonException;
 import munch.restful.core.exception.ParamException;
 import org.apache.commons.lang3.StringUtils;
 import spark.Request;
 import spark.Response;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.List;
 import java.util.function.Function;
@@ -291,5 +296,39 @@ public class JsonCall {
      */
     public String getHeader(String name) {
         return request().headers(name);
+    }
+
+    /**
+     * @return DecodedJWT if found else null
+     */
+    public DecodedJWT getJWT() {
+        String token = getJWTToken(this);
+        if (token == null) return null;
+
+        try {
+            return JWT.decode(token);
+        } catch (JWTDecodeException exception) {
+            // Invalid token
+            throw new CodeException(403);
+        }
+    }
+
+    /**
+     * @param call Authorization get from header
+     * @return token or null if don't exist
+     */
+    @Nullable
+    private static String getJWTToken(JsonCall call) {
+        final String value = call.getHeader("Authorization");
+        if (value == null || !value.toLowerCase().startsWith("bearer")) {
+            return null;
+        }
+
+        String[] parts = value.split(" ");
+        if (parts.length < 2) {
+            return null;
+        }
+
+        return parts[1].trim();
     }
 }

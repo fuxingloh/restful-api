@@ -3,5 +3,4 @@ rootProject.name = 'restful-api'
 include 'restful-server'
 include 'restful-client'
 include 'restful-core'
-include 'restful-auth0'
 
