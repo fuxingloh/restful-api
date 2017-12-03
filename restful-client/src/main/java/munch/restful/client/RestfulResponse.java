@@ -10,6 +10,7 @@ import munch.restful.core.JsonUtils;
 import munch.restful.core.RestfulMeta;
 import munch.restful.core.exception.JsonException;
 import munch.restful.core.exception.StructuredException;
+import munch.restful.core.exception.UnavailableException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,16 +50,18 @@ public class RestfulResponse {
     RestfulResponse(RestfulRequest request, HttpResponse<String> response, BiConsumer<RestfulResponse, StructuredException> handler) {
         this.response = response;
         try {
+            // Parsing JsonNode
             this.jsonNode = objectMapper.readTree(response.getBody());
             try {
+                // Parsing RestfulMeta
                 meta = JsonUtils.toObject(getNode().path("meta"), RestfulMeta.class);
             } catch (JsonException e) {
                 throw new RuntimeException("RestfulMeta cannot be parsed. " +
                         "Implementation of result does not adhere to required restful structure. \n" + response.getBody(), e);
             }
         } catch (IOException e) {
-            // Can be added to handle 504 error from AWS ELB
-            // if (response.getStatus() == 504) throw new TimeoutException(e);
+            // Added to handle 503 error from AWS ELB
+            if (response.getStatus() == 503) throw new UnavailableException(e);
             throw new JsonException(e, request.request.getUrl());
         }
 
