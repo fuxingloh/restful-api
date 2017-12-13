@@ -117,7 +117,9 @@ public class StructuredException extends RuntimeException {
                 error.getMessage(), error.getStacktrace());
 
         // Pass the source down
-        exception.sources.addAll(error.getSources());
+        if (error.getSources() != null) {
+            exception.sources.addAll(error.getSources());
+        }
         if (source != null) exception.sources.add(source);
         return exception;
     }
