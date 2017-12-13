@@ -5,6 +5,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -24,7 +25,7 @@ public class StructuredException extends RuntimeException {
 
     public StructuredException(StructuredException e) {
         this(e.code, e.type, e.message, e.stacktrace);
-        this.sources = e.sources;
+        this.sources = e.sources == null ? Collections.emptyList() : e.sources;
     }
 
     /**
