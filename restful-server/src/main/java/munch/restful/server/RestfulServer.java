@@ -31,13 +31,6 @@ public class RestfulServer {
     protected static final Logger logger = LoggerFactory.getLogger(RestfulServer.class);
     protected static final ObjectMapper objectMapper = JsonService.objectMapper;
 
-    private static final JsonNode notFound = objectMapper.createObjectNode()
-            .set("meta", objectMapper.valueToTree(RestfulMeta.builder()
-                    .code(404)
-                    .errorType("EndpointNotFound")
-                    .errorMessage("Requested endpoint is not registered.")
-                    .build()));
-
     private final RestfulService[] routers;
     private boolean started = false;
 
@@ -104,7 +97,15 @@ public class RestfulServer {
         setupRouters();
 
         // Default handler for not found
-        Spark.notFound((req, res) -> JsonTransformer.toJson(notFound));
+        Spark.notFound((req, res) -> {
+            String path = req.pathInfo();
+            return JsonTransformer.toJson(objectMapper.createObjectNode()
+                    .set("meta", objectMapper.valueToTree(RestfulMeta.builder()
+                            .code(404)
+                            .errorType("EndpointNotFound")
+                            .errorMessage("Requested " + path + " endpoint is not registered.")
+                            .build())));
+        });
         logger.info("Registered http 404 not found json response.");
 
         // Handle all expected exceptions
