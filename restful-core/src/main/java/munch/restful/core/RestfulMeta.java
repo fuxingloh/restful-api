@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -53,12 +52,13 @@ public final class RestfulMeta {
         this.error = error;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public final static class Error {
         private String type;
         private String message;
         private String stacktrace;
 
-        private List<String> sources = new ArrayList<>();
+        private List<String> sources;
 
         /**
          * @return error type, aka ClassType

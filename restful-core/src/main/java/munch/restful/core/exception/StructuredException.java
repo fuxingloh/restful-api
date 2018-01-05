@@ -90,7 +90,7 @@ public class StructuredException extends RuntimeException {
         error.setType(type);
         error.setMessage(message);
         error.setStacktrace(stacktrace);
-        error.setSources(sources);
+        error.setSources(sources.isEmpty() ? null : sources);
         meta.setError(error);
         return meta;
     }
@@ -120,7 +120,9 @@ public class StructuredException extends RuntimeException {
         if (error.getSources() != null) {
             exception.sources.addAll(error.getSources());
         }
-        if (source != null) exception.sources.add(source);
+        if (source != null) {
+            exception.sources.add(source);
+        }
         return exception;
     }
 }

@@ -1,4 +1,4 @@
-package munch.restful.server.auth0;
+package munch.restful.server.auth0.authenticate;
 
 import com.auth0.jwk.*;
 import com.auth0.jwt.JWT;

@@ -4,6 +4,7 @@ import com.auth0.jwk.JwkProvider;
 import com.auth0.jwk.JwkProviderBuilder;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+import munch.restful.server.auth0.authenticate.JwtAuthenticator;
 
 import javax.inject.Singleton;
 
@@ -13,12 +14,12 @@ import javax.inject.Singleton;
  * Time: 1:13 AM
  * Project: restful-api
  */
-public final class Auth0Module extends AbstractModule {
+public final class Auth0AuthenticationModule extends AbstractModule {
 
     private final String audience;
     private final String issuer;
 
-    public Auth0Module(String audience, String issuer) {
+    public Auth0AuthenticationModule(String audience, String issuer) {
         this.audience = audience;
         this.issuer = issuer;
     }

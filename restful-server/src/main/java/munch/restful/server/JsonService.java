@@ -44,6 +44,14 @@ public interface JsonService extends RestfulService {
     }
 
     /**
+     * @param path   path for before filter, accepts wildcards
+     * @param filter json filter
+     */
+    default void BEFORE(String path, JsonFilter filter) {
+        Spark.before(path, filter);
+    }
+
+    /**
      * @param path       path to add prefix to route
      * @param routeGroup route
      */
@@ -72,17 +80,6 @@ public interface JsonService extends RestfulService {
     }
 
     /**
-     * Map route for HTTP Post
-     *
-     * @param path  the path
-     * @param route json node route
-     */
-    @Deprecated
-    default void POST(String path, JsonRoute.Node route) {
-        Spark.post(path, route, toJson());
-    }
-
-    /**
      * Map route for HTTP Put
      *
      * @param path       the path
@@ -90,18 +87,6 @@ public interface JsonService extends RestfulService {
      * @param route      json node route
      */
     default void POST(String path, String acceptType, JsonRoute route) {
-        Spark.post(path, acceptType, route, toJson);
-    }
-
-    /**
-     * Map route for HTTP Put
-     *
-     * @param path       the path
-     * @param acceptType the request accept type
-     * @param route      json node route
-     */
-    @Deprecated
-    default void POST(String path, String acceptType, JsonRoute.Node route) {
         Spark.post(path, acceptType, route, toJson);
     }
 
@@ -118,34 +103,11 @@ public interface JsonService extends RestfulService {
     /**
      * Map route for HTTP Put
      *
-     * @param path  the path
-     * @param route json node route
-     */
-    @Deprecated
-    default void PUT(String path, JsonRoute.Node route) {
-        Spark.put(path, route, toJson());
-    }
-
-    /**
-     * Map route for HTTP Put
-     *
      * @param path       the path
      * @param acceptType the request accept type
      * @param route      json node route
      */
     default void PUT(String path, String acceptType, JsonRoute route) {
-        Spark.put(path, acceptType, route, toJson);
-    }
-
-    /**
-     * Map route for HTTP Put
-     *
-     * @param path       the path
-     * @param acceptType the request accept type
-     * @param route      json node route
-     */
-    @Deprecated
-    default void PUT(String path, String acceptType, JsonRoute.Node route) {
         Spark.put(path, acceptType, route, toJson);
     }
 
@@ -156,17 +118,6 @@ public interface JsonService extends RestfulService {
      * @param route json route
      */
     default void DELETE(String path, JsonRoute route) {
-        Spark.delete(path, route, toJson());
-    }
-
-    /**
-     * Map route for HTTP Delete
-     *
-     * @param path  the path
-     * @param route json node route
-     */
-    @Deprecated
-    default void DELETE(String path, JsonRoute.Node route) {
         Spark.delete(path, route, toJson());
     }
 

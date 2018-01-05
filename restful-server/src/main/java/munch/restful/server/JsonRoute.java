@@ -37,23 +37,4 @@ public interface JsonRoute extends Route {
         }
         return object;
     }
-
-    @FunctionalInterface
-    interface Node extends JsonRoute {
-
-        /**
-         * Invoked when a request is made on this route's corresponding path e.g. '/hello'
-         *
-         * @param call call object contains request and response object
-         * @param node the json node itself
-         * @return The json content to be set in the response
-         * @throws java.lang.Exception implementation can choose to throw exception
-         */
-        Object handle(JsonCall call, JsonNode node) throws Exception;
-
-        @Override
-        default Object handle(JsonCall call) throws Exception {
-            return handle(call, call.bodyAsJson());
-        }
-    }
 }
