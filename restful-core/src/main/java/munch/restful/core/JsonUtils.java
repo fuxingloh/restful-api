@@ -20,7 +20,12 @@ import java.util.function.Function;
 public final class JsonUtils {
     public static final ObjectMapper objectMapper = new ObjectMapper();
 
+    @Deprecated
     public static String toJsonString(Object object) {
+        return toString(object);
+    }
+
+    public static String toString(Object object) {
         try {
             return objectMapper.writeValueAsString(object);
         } catch (JsonProcessingException e) {
@@ -53,6 +58,15 @@ public final class JsonUtils {
             CollectionType type = objectMapper.getTypeFactory().constructCollectionType(List.class, clazz);
             return objectMapper.convertValue(nodes, type);
         } catch (IllegalArgumentException e) {
+            throw new JsonException(e);
+        }
+    }
+
+    public static <T> List<T> toList(String json, Class<T> clazz) {
+        try {
+            CollectionType type = objectMapper.getTypeFactory().constructCollectionType(List.class, clazz);
+            return objectMapper.readValue(json, type);
+        } catch (IOException e) {
             throw new JsonException(e);
         }
     }
