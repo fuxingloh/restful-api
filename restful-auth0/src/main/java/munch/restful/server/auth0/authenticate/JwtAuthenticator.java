@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.security.interfaces.RSAPublicKey;
+import java.util.Optional;
 
 /**
  * Created by: Fuxing
@@ -43,18 +44,17 @@ public final class JwtAuthenticator {
      * defaults: requires authentication
      *
      * @param call json call
-     * @return AuthenticatedJWT util
+     * @return AuthenticatedJWT
      * @throws AuthenticationException authentication error
      */
     public AuthenticatedJWT authenticate(JsonCall call) throws AuthenticationException {
         return authenticate(call, true);
     }
 
-
     /**
      * @param call     json call
      * @param requires whether authentication is optional
-     * @return AuthenticatedJWT util
+     * @return AuthenticatedJWT
      * @throws AuthenticationException authentication error
      */
     public AuthenticatedJWT authenticate(JsonCall call, boolean requires) throws AuthenticationException {
@@ -64,6 +64,19 @@ public final class JwtAuthenticator {
             return new AuthenticatedJWT(null);
         }
         return authenticate(decoded);
+    }
+
+    /**
+     * Optionally authenticate
+     *
+     * @param call json call
+     * @return AuthenticatedJWT
+     * @throws AuthenticationException authentication error
+     */
+    public Optional<AuthenticatedJWT> optional(JsonCall call) throws AuthenticationException {
+        DecodedJWT decoded = call.getJWT();
+        if (decoded == null) return Optional.empty();
+        return Optional.of(authenticate(decoded));
     }
 
     public AuthenticatedJWT authenticate(DecodedJWT decodedJwt) throws AuthenticationException {
