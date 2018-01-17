@@ -3,6 +3,12 @@ package munch.restful.core.exception;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.StringUtils;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 /**
  * Created By: Fuxing Loh
  * Date: 5/7/2017
@@ -10,13 +16,32 @@ import org.apache.commons.lang3.StringUtils;
  * Project: munch-core
  */
 public class ValidationException extends StructuredException {
-
-    public ValidationException(String key) {
-        super(400, "ValidationException", "Validation failed on " + key);
-    }
+    public static final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
     public ValidationException(String key, String reason) {
         super(400, "ValidationException", "Validation failed on " + key + ", reason: " + reason + ".");
+    }
+
+    private ValidationException(String reason) {
+        super(400, "ValidationException", reason);
+    }
+
+    /**
+     * Use Hibernate validator for violations validation
+     *
+     * @param object object to validate
+     * @param groups the group or list of groups targeted for validation
+     * @param <T>    the type of the object to validate
+     * @throws ValidationException throws exception if failed
+     */
+    public static <T> void validate(T object, Class<?>... groups) throws ValidationException {
+        Set<ConstraintViolation<T>> violations = validator.validate(object, groups);
+        if (violations.isEmpty()) return;
+        String messages = violations.stream()
+                .map(ConstraintViolation::getMessage)
+                .collect(Collectors.joining("\n"));
+        throw new ValidationException(messages);
+
     }
 
     /**
@@ -37,7 +62,7 @@ public class ValidationException extends StructuredException {
      * @throws ValidationException if null, missing or blank
      */
     public static String requireNonBlank(String key, JsonNode node) throws ValidationException {
-        require(key, node);
+        node = require(key, node);
         String text = node.asText(null);
         if (StringUtils.isBlank(text)) throw new ValidationException(key, "Required node is blank");
         return text;

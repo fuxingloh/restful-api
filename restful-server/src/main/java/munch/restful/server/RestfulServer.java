@@ -6,10 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
 import munch.restful.core.RestfulMeta;
-import munch.restful.core.exception.CodeException;
-import munch.restful.core.exception.StructuredException;
-import munch.restful.core.exception.TimeoutException;
-import munch.restful.core.exception.UnknownException;
+import munch.restful.core.exception.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Response;
@@ -141,6 +138,24 @@ public class RestfulServer {
                 response.type(JsonService.APP_JSON);
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
+            }
+        });
+
+        logger.info("Adding exception handling for ValidationException.");
+        Spark.exception(ValidationException.class, (e, request, response) -> {
+            ValidationException exception = ((ValidationException) e);
+            try {
+                ObjectNode nodes = objectMapper.createObjectNode();
+                nodes.putObject("meta")
+                        .putObject("error")
+                        .put("type", exception.getType())
+                        .put("message", exception.getMessage());
+
+                response.status(exception.getCode());
+                response.body(objectMapper.writeValueAsString(nodes));
+                response.type(JsonService.APP_JSON);
+            } catch (JsonProcessingException jpe) {
+                throw new RuntimeException(jpe);
             }
         });
 
