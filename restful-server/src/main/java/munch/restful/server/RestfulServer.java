@@ -30,6 +30,7 @@ public class RestfulServer {
 
     private final RestfulService[] routers;
     private boolean started = false;
+    private boolean debug = true;
 
     /**
      * @param routers array of routes for spark server to route with
@@ -141,24 +142,6 @@ public class RestfulServer {
             }
         });
 
-        logger.info("Adding exception handling for ValidationException.");
-        Spark.exception(ValidationException.class, (e, request, response) -> {
-            ValidationException exception = ((ValidationException) e);
-            try {
-                ObjectNode nodes = objectMapper.createObjectNode();
-                nodes.putObject("meta")
-                        .putObject("error")
-                        .put("type", exception.getType())
-                        .put("message", exception.getMessage());
-
-                response.status(exception.getCode());
-                response.body(objectMapper.writeValueAsString(nodes));
-                response.type(JsonService.APP_JSON);
-            } catch (JsonProcessingException jpe) {
-                throw new RuntimeException(jpe);
-            }
-        });
-
         logger.info("Adding exception handling for StructuredException.");
         Spark.exception(StructuredException.class, (exception, request, response) -> {
             List<String> sources = ((StructuredException) exception).getSources();
@@ -202,7 +185,14 @@ public class RestfulServer {
     protected void handleException(Response response, StructuredException exception) {
         try {
             response.status(exception.getCode());
-            JsonNode metaNode = objectMapper.valueToTree(exception.toMeta());
+            RestfulMeta restfulMeta = exception.toMeta();
+            if (!debug) {
+                // If debug mode is disabled, stacktrace and source will be removed
+                // Exception will still be logged
+                restfulMeta.getError().setStacktrace(null);
+                restfulMeta.getError().setSources(null);
+            }
+            ObjectNode metaNode = objectMapper.valueToTree(restfulMeta);
             JsonNode nodes = objectMapper.createObjectNode().set("meta", metaNode);
             response.body(objectMapper.writeValueAsString(nodes));
             response.type(JsonService.APP_JSON);
@@ -216,6 +206,23 @@ public class RestfulServer {
      */
     public boolean isStarted() {
         return started;
+    }
+
+    /**
+     * @return whether it is debug mode
+     */
+    public boolean isDebug() {
+        return debug;
+    }
+
+    /**
+     * If debug mode is true, stacktrace and sources will be remove for RestfulMeta
+     * Otherwise,
+     *
+     * @param debug debug mode
+     */
+    public void setDebug(boolean debug) {
+        this.debug = debug;
     }
 
     /**

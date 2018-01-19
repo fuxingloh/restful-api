@@ -79,6 +79,7 @@ public class StructuredException extends RuntimeException {
 
     /**
      * Convert Structured exception to meta to restful use
+     * To be safe, only use this method
      *
      * @return RestfulMeta
      */
