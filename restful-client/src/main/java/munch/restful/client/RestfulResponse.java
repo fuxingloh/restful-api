@@ -60,8 +60,9 @@ public class RestfulResponse {
                         "Implementation of result does not adhere to required restful structure. \n" + response.getBody(), e);
             }
         } catch (IOException e) {
-            // Added to handle 503 error from AWS ELB
+            // Added to handle 503 & 502 error from AWS ELB
             if (response.getStatus() == 503) throw new UnavailableException(e);
+            if (response.getStatus() == 502) throw new UnavailableException(e);
             throw new JsonException(e, request.request.getUrl());
         }
 
