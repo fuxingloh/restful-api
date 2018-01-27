@@ -11,4 +11,8 @@ public final class TimeoutException extends StructuredException {
     public TimeoutException(Throwable throwable) {
         super(408, "TimeoutException", "Request from client to server has timeout.", throwable);
     }
+
+    public TimeoutException(int code, Throwable throwable) {
+        super(code, "TimeoutException", "Request from client to server has timeout.", throwable);
+    }
 }
