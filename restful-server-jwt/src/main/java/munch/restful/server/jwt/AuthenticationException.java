@@ -1,4 +1,4 @@
-package munch.restful.server.auth0.authenticate;
+package munch.restful.server.jwt;
 
 import munch.restful.core.exception.StructuredException;
 

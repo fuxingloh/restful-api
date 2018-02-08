@@ -1,4 +1,4 @@
-package munch.restful.server.auth0.authenticate;
+package munch.restful.server.jwt;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
 
@@ -8,11 +8,11 @@ import com.auth0.jwt.interfaces.DecodedJWT;
  * Time: 1:47 AM
  * Project: restful-api
  */
-public final class AuthenticatedJWT {
+public class AuthenticatedToken {
     private final DecodedJWT decodedJWT;
     private final boolean authenticated;
 
-    public AuthenticatedJWT(DecodedJWT decodedJWT) {
+    public AuthenticatedToken(DecodedJWT decodedJWT) {
         this.decodedJWT = decodedJWT;
         this.authenticated = decodedJWT != null;
     }
