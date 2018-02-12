@@ -20,11 +20,6 @@ import java.util.function.Function;
 public final class JsonUtils {
     public static final ObjectMapper objectMapper = new ObjectMapper();
 
-    @Deprecated
-    public static String toJsonString(Object object) {
-        return toString(object);
-    }
-
     public static String toString(Object object) {
         try {
             return objectMapper.writeValueAsString(object);
@@ -48,6 +43,14 @@ public final class JsonUtils {
     public static <T> T toObject(JsonNode node, Class<T> clazz) {
         try {
             return objectMapper.treeToValue(node, clazz);
+        } catch (IOException e) {
+            throw new JsonException(e);
+        }
+    }
+
+    public static <T> T toObject(String value, Class<T> clazz) {
+        try {
+            return objectMapper.readValue(value, clazz);
         } catch (IOException e) {
             throw new JsonException(e);
         }
