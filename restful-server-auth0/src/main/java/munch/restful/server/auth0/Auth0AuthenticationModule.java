@@ -23,11 +23,6 @@ public final class Auth0AuthenticationModule extends AbstractModule {
         this.issuer = issuer;
     }
 
-    @Override
-    protected void configure() {
-        bind(TokenAuthenticator.class).to(Auth0Authenticator.class);
-    }
-
     @Provides
     @Singleton
     JwkProvider provideJwkProvider() {
