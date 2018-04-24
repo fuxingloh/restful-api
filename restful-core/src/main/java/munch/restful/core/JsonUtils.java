@@ -4,11 +4,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
+import com.fasterxml.jackson.databind.type.MapType;
 import munch.restful.core.exception.JsonException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 /**
@@ -80,5 +83,23 @@ public final class JsonUtils {
             list.add(mapper.apply(node));
         }
         return list;
+    }
+
+    public static <K, V> Map<K, V> toMap(JsonNode nodes, Class<K> keyClass, Class<V> valueClass) {
+        try {
+            MapType type = objectMapper.getTypeFactory().constructMapType(HashMap.class, keyClass, valueClass);
+            return objectMapper.convertValue(nodes, type);
+        } catch (IllegalArgumentException e) {
+            throw new JsonException(e);
+        }
+    }
+
+    public static <K, V> Map<K, V> toMap(String json, Class<K> keyClass, Class<V> valueClass) {
+        try {
+            MapType type = objectMapper.getTypeFactory().constructMapType(HashMap.class, keyClass, valueClass);
+            return objectMapper.readValue(json, type);
+        } catch (IOException e) {
+            throw new JsonException(e);
+        }
     }
 }
