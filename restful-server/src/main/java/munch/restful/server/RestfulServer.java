@@ -6,7 +6,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
 import munch.restful.core.RestfulMeta;
-import munch.restful.core.exception.*;
+import munch.restful.core.exception.CodeException;
+import munch.restful.core.exception.StructuredException;
+import munch.restful.core.exception.TimeoutException;
+import munch.restful.core.exception.UnknownException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Response;
@@ -231,6 +234,15 @@ public class RestfulServer {
      */
     public int getPort() {
         return Spark.port();
+    }
+
+    public void setHealth(String path, String body) {
+        Spark.get(path, (req, res) -> body);
+    }
+
+    public RestfulServer withHealth(String path, String body) {
+        setHealth(path, body);
+        return this;
     }
 
     /**
