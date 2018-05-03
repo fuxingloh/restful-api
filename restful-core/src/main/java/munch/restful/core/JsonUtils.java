@@ -3,6 +3,8 @@ package munch.restful.core;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.databind.type.MapType;
 import munch.restful.core.exception.JsonException;
@@ -22,6 +24,14 @@ import java.util.function.Function;
  */
 public final class JsonUtils {
     public static final ObjectMapper objectMapper = new ObjectMapper();
+
+    public static ObjectNode createObjectNode() {
+        return objectMapper.createObjectNode();
+    }
+
+    public static ArrayNode createArrayNode() {
+        return objectMapper.createArrayNode();
+    }
 
     public static String toString(Object object) {
         try {
