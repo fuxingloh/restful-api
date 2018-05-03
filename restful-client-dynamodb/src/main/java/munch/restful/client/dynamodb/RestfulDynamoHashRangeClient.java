@@ -16,13 +16,11 @@ import java.util.List;
  * Time: 2:43 PM
  * Project: munch-partners
  */
-public class RestfulDynamoClient<T> extends RestfulClient {
+public class RestfulDynamoHashRangeClient<T> extends RestfulClient {
 
     protected final Class<T> clazz;
-
     protected final String hashName;
     protected final String rangeName;
-
     protected final String path;
 
     /**
@@ -32,8 +30,8 @@ public class RestfulDynamoClient<T> extends RestfulClient {
      * @param hashName  name of hash
      * @param rangeName name of range
      */
-    public RestfulDynamoClient(String url, Class<T> clazz,
-                               String path, String hashName, String rangeName) {
+    public RestfulDynamoHashRangeClient(String url, Class<T> clazz,
+                                        String path, String hashName, String rangeName) {
         super(url);
         this.clazz = clazz;
         this.path = path;
@@ -98,7 +96,7 @@ public class RestfulDynamoClient<T> extends RestfulClient {
     /**
      * @param hash  value
      * @param range value
-     * @return Object, Nullable
+     * @return Object, Null = not found
      */
     @Nullable
     public T get(Object hash, Object range) {
@@ -125,7 +123,7 @@ public class RestfulDynamoClient<T> extends RestfulClient {
     /**
      * @param hash  value
      * @param range value
-     * @return Object
+     * @return Object, Null = not found
      */
     @Nullable
     public T delete(Object hash, Object range) {

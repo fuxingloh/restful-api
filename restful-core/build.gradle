@@ -5,6 +5,7 @@ dependencies {
 
     // Commons
     compile group: 'commons-io', name: 'commons-io', version: '2.5'
+    compile group: 'commons-codec', name: 'commons-codec', version: '1.11'
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.5'
 
     // Validator
