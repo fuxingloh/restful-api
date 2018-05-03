@@ -1,0 +1,5 @@
+dependencies {
+    compile project(':restful-server')
+
+    compileOnly group: 'com.amazonaws', name: 'aws-java-sdk-dynamodb', version: awsVersion
+}

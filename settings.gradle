@@ -1,9 +1,13 @@
 rootProject.name = 'restful-api'
 
-include 'restful-server'
-include 'restful-client'
 include 'restful-core'
+
+include 'restful-client'
+include 'restful-client-dynamodb'
+
+include 'restful-server'
 include 'restful-server-jwt'
 include 'restful-server-auth0'
 include 'restful-server-firebase'
+include 'restful-server-dynamodb'
 
