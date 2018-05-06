@@ -1,5 +1,6 @@
 package munch.restful.client.dynamodb;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.ArrayList;
@@ -11,19 +12,28 @@ import java.util.Collection;
  * Time: 3:04 PM
  * Project: munch-partners
  */
-public class PagedList<T> extends ArrayList<T> {
+public class NextNodeList<T> extends ArrayList<T> {
+
     private JsonNode next;
 
-    public PagedList(Collection<? extends T> c, JsonNode next) {
+    public NextNodeList(Collection<? extends T> c, JsonNode next) {
         super(c);
         this.next = next;
     }
 
+    /**
+     * @return next node
+     */
+    @JsonIgnore
     public JsonNode getNext() {
         return next;
     }
 
+    /**
+     * @return if have next node
+     */
+    @JsonIgnore
     public boolean hasNext() {
-        return !next.isMissingNode();
+        return next != null && !next.isMissingNode();
     }
 }

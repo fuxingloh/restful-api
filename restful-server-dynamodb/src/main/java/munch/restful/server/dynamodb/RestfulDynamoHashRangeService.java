@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 public abstract class RestfulDynamoHashRangeService<T> extends RestfulDynamoService<T> {
 
     protected final String rangeName;
-    protected final int maxSize;
 
     /**
      * @param table     dynamodb table
@@ -42,9 +41,8 @@ public abstract class RestfulDynamoHashRangeService<T> extends RestfulDynamoServ
      * @param maxSize   max size per query
      */
     protected RestfulDynamoHashRangeService(Table table, Class<T> clazz, String hashName, String rangeName, int maxSize) {
-        super(table, clazz, hashName);
+        super(table, clazz, hashName, maxSize);
         this.rangeName = rangeName;
-        this.maxSize = maxSize;
     }
 
     /**
@@ -60,16 +58,15 @@ public abstract class RestfulDynamoHashRangeService<T> extends RestfulDynamoServ
     }
 
     /**
-     * @param queryApi for querying, can be a table or index
+     * @param queryApi to query
      * @param hash     hash value
-     * @param range    exclusive range start value, nullable means start from top
+     * @param maxRange exclusive max range, nullable means start from top, result range value will not be greater than this
      * @param size     size per list
      * @return JsonNode result to return
      * @see QueryApi#query(QuerySpec)
-     * @see Table this extends QueryApi
-     * @see Index this extends QueryApi
+     * @see QuerySpec#withExclusiveStartKey(KeyAttribute...)
      */
-    protected JsonNode list(QueryApi queryApi, Object hash, @Nullable Object range, int size) {
+    protected JsonNode list(QueryApi queryApi, Object hash, @Nullable Object maxRange, int size) {
         ParamException.requireNonNull(hashName, hash);
 
         QuerySpec querySpec = new QuerySpec();
@@ -77,8 +74,8 @@ public abstract class RestfulDynamoHashRangeService<T> extends RestfulDynamoServ
         querySpec.withHashKey(hashName, hash);
         querySpec.withMaxPageSize(resolveSize(size));
 
-        if (range != null) {
-            querySpec.withExclusiveStartKey(hashName, hash, rangeName, range);
+        if (maxRange != null) {
+            querySpec.withRangeKeyCondition(new RangeKeyCondition(rangeName).lt(maxRange));
         }
 
         List<Item> items = new ArrayList<>();
@@ -93,7 +90,6 @@ public abstract class RestfulDynamoHashRangeService<T> extends RestfulDynamoServ
 
         // Have next, send next object
         ObjectNode next = node.putObject("next");
-        next.putPOJO(hashName, hash);
         next.putPOJO(rangeName, items.get(size - 1).get(rangeName));
         return node;
     }
@@ -170,15 +166,5 @@ public abstract class RestfulDynamoHashRangeService<T> extends RestfulDynamoServ
 
         DeleteItemOutcome outcome = table.deleteItem(hashName, hash, rangeName, range);
         return toData(outcome.getItem());
-    }
-
-    /**
-     * @param size actual size
-     * @return resolved size, cannot be < 1, and not more then max
-     */
-    protected int resolveSize(int size) {
-        if (size < 1 || size > maxSize)
-            throw new ParamException("Size cannot be less then 0 or greater than " + maxSize);
-        return size;
     }
 }

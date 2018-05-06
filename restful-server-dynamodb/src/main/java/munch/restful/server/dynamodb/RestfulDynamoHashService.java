@@ -1,14 +1,17 @@
 package munch.restful.server.dynamodb;
 
-import com.amazonaws.services.dynamodbv2.document.DeleteItemOutcome;
-import com.amazonaws.services.dynamodbv2.document.Item;
-import com.amazonaws.services.dynamodbv2.document.PutItemOutcome;
-import com.amazonaws.services.dynamodbv2.document.Table;
+import com.amazonaws.services.dynamodbv2.document.*;
+import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
+import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import munch.restful.core.exception.ParamException;
 import munch.restful.server.JsonCall;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by: Fuxing
@@ -22,9 +25,51 @@ public abstract class RestfulDynamoHashService<T> extends RestfulDynamoService<T
      * @param table    dynamodb table
      * @param clazz    of data
      * @param hashName range of hash
+     * @param maxSize  max size per query
+     */
+    protected RestfulDynamoHashService(Table table, Class<T> clazz, String hashName, int maxSize) {
+        super(table, clazz, hashName, maxSize);
+    }
+
+    /**
+     * @param table    dynamodb table
+     * @param clazz    of data
+     * @param hashName range of hash
      */
     protected RestfulDynamoHashService(Table table, Class<T> clazz, String hashName) {
-        super(table, clazz, hashName);
+        super(table, clazz, hashName, 100);
+    }
+
+    /**
+     * @param table to query
+     * @param hash  hash value
+     * @param size  size per list
+     * @return JsonNode result to return
+     * @see Table#query(QuerySpec)
+     * @see QuerySpec#withExclusiveStartKey(KeyAttribute...)
+     */
+    protected JsonNode list(Table table, Object hash, int size) {
+        ScanSpec scanSpec = new ScanSpec();
+        scanSpec.withMaxPageSize(resolveSize(size));
+
+        if (hash != null) {
+            scanSpec.withExclusiveStartKey(hashName, hash);
+        }
+
+        List<Item> items = new ArrayList<>();
+        table.scan(scanSpec).forEach(items::add);
+
+
+        List<T> dataList = items.stream().map(this::toData).collect(Collectors.toList());
+        ObjectNode node = nodes(200, dataList);
+
+        // If no more next
+        if (items.size() != size) return node;
+
+        // Have next, send next object
+        ObjectNode next = node.putObject("next");
+        next.putPOJO(hashName, items.get(size - 1).get(hashName));
+        return node;
     }
 
     /**

@@ -4,6 +4,7 @@ import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.dynamodbv2.document.Table;
 import com.fasterxml.jackson.databind.JsonNode;
 import munch.restful.core.JsonUtils;
+import munch.restful.core.exception.ParamException;
 import munch.restful.core.exception.ValidationException;
 import munch.restful.server.JsonService;
 
@@ -20,16 +21,19 @@ public abstract class RestfulDynamoService<T> implements JsonService {
     protected final Class<T> clazz;
 
     protected final String hashName;
+    protected final int maxSize;
 
     /**
      * @param table    dynamodb table
      * @param clazz    of data
      * @param hashName range of hash
+     * @param maxSize  max size per query
      */
-    protected RestfulDynamoService(Table table, Class<T> clazz, String hashName) {
+    protected RestfulDynamoService(Table table, Class<T> clazz, String hashName, int maxSize) {
         this.table = table;
         this.clazz = clazz;
         this.hashName = hashName;
+        this.maxSize = maxSize;
     }
 
     /**
@@ -68,5 +72,15 @@ public abstract class RestfulDynamoService<T> implements JsonService {
         if (item == null) return null;
 
         return JsonUtils.toObject(item.toJSON(), clazz);
+    }
+
+    /**
+     * @param size actual size
+     * @return resolved size, cannot be < 1, and not more then max
+     */
+    protected int resolveSize(int size) {
+        if (size < 1 || size > maxSize)
+            throw new ParamException("Size cannot be less then 0 or greater than " + maxSize);
+        return size;
     }
 }
