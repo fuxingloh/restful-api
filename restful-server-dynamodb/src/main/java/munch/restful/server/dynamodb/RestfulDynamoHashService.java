@@ -41,14 +41,24 @@ public abstract class RestfulDynamoHashService<T> extends RestfulDynamoService<T
     }
 
     /**
-     * @param table to query
-     * @param hash  hash value
-     * @param size  size per list
+     * @param call json call with queryString(hashName), queryString("size")
+     * @return JsonNode result
+     * @see RestfulDynamoHashService#list(Object, int)
+     */
+    protected JsonNode list(JsonCall call) {
+        String hash = call.queryString(hashName, null);
+        int size = resolveSize(call.queryInt("size", 20));
+        return list(hash, size);
+    }
+
+    /**
+     * @param hash hash value
+     * @param size size per list
      * @return JsonNode result to return
      * @see Table#query(QuerySpec)
      * @see QuerySpec#withExclusiveStartKey(KeyAttribute...)
      */
-    protected JsonNode list(Table table, Object hash, int size) {
+    protected JsonNode list(Object hash, int size) {
         ScanSpec scanSpec = new ScanSpec();
         scanSpec.withMaxPageSize(resolveSize(size));
 
