@@ -37,7 +37,7 @@ public class RestfulDynamoHashClient<T> extends RestfulDynamoClient<T> {
         request.queryString("size", size);
 
         if (nextHash != null) {
-            request.queryString(hashName, nextHash);
+            request.queryString("next." + hashName, nextHash);
         }
 
         RestfulResponse response = request.asResponse();

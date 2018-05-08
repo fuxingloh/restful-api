@@ -1,14 +1,21 @@
 package munch.restful.server.dynamodb;
 
 import com.amazonaws.services.dynamodbv2.document.Item;
+import com.amazonaws.services.dynamodbv2.document.RangeKeyCondition;
 import com.amazonaws.services.dynamodbv2.document.Table;
+import com.amazonaws.services.dynamodbv2.document.api.QueryApi;
+import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import munch.restful.core.JsonUtils;
 import munch.restful.core.exception.ParamException;
 import munch.restful.core.exception.ValidationException;
 import munch.restful.server.JsonService;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by: Fuxing
@@ -35,6 +42,45 @@ public abstract class RestfulDynamoService<T> implements JsonService {
         this.hashName = hashName;
         this.maxSize = maxSize;
     }
+
+    /**
+     * @param queryApi  to query
+     * @param hashName  name of hash
+     * @param hash      value
+     * @param rangeName name of range
+     * @param nextRange to start from
+     * @param size      per list
+     * @return JsonNode result to return
+     * @see QueryApi#query(QuerySpec)
+     */
+    protected JsonNode list(QueryApi queryApi, String hashName, Object hash, String rangeName, @Nullable Object nextRange, int size) {
+        ParamException.requireNonNull(hashName, hash);
+
+        QuerySpec querySpec = new QuerySpec();
+        querySpec.withScanIndexForward(false);
+        querySpec.withHashKey(hashName, hash);
+        querySpec.withMaxPageSize(resolveSize(size));
+
+        if (nextRange != null) {
+            querySpec.withRangeKeyCondition(new RangeKeyCondition(rangeName).lt(nextRange));
+        }
+
+        List<Item> items = new ArrayList<>();
+        queryApi.query(querySpec).forEach(items::add);
+
+
+        List<T> dataList = items.stream().map(this::toData).collect(Collectors.toList());
+        ObjectNode node = nodes(200, dataList);
+
+        // If no more next
+        if (items.size() != size) return node;
+
+        // Have next, send next object
+        ObjectNode next = node.putObject("next");
+        next.putPOJO(rangeName, items.get(size - 1).get(rangeName));
+        return node;
+    }
+
 
     /**
      * This method will also validate the data

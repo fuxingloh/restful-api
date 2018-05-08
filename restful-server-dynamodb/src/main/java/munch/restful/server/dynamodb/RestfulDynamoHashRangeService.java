@@ -4,14 +4,10 @@ import com.amazonaws.services.dynamodbv2.document.*;
 import com.amazonaws.services.dynamodbv2.document.api.QueryApi;
 import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import munch.restful.core.exception.ParamException;
 import munch.restful.server.JsonCall;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Created by: Fuxing
@@ -53,45 +49,21 @@ public abstract class RestfulDynamoHashRangeService<T> extends RestfulDynamoServ
     protected JsonNode list(JsonCall call) {
         return list(table,
                 call.pathString(hashName),
-                call.queryString(rangeName, null),
+                call.queryString("next." + rangeName, null),
                 call.queryInt("size", 20));
     }
 
     /**
-     * @param queryApi to query
-     * @param hash     hash value
-     * @param maxRange exclusive max range, nullable means start from top, result range value will not be greater than this
-     * @param size     size per list
+     * @param queryApi  to query
+     * @param hash      value
+     * @param nextRange to start from
+     * @param size      per list
      * @return JsonNode result to return
      * @see QueryApi#query(QuerySpec)
-     * @see QuerySpec#withExclusiveStartKey(KeyAttribute...)
+     * @see QuerySpec#withRangeKeyCondition(RangeKeyCondition)
      */
-    protected JsonNode list(QueryApi queryApi, Object hash, @Nullable Object maxRange, int size) {
-        ParamException.requireNonNull(hashName, hash);
-
-        QuerySpec querySpec = new QuerySpec();
-        querySpec.withScanIndexForward(false);
-        querySpec.withHashKey(hashName, hash);
-        querySpec.withMaxPageSize(resolveSize(size));
-
-        if (maxRange != null) {
-            querySpec.withRangeKeyCondition(new RangeKeyCondition(rangeName).lt(maxRange));
-        }
-
-        List<Item> items = new ArrayList<>();
-        queryApi.query(querySpec).forEach(items::add);
-
-
-        List<T> dataList = items.stream().map(this::toData).collect(Collectors.toList());
-        ObjectNode node = nodes(200, dataList);
-
-        // If no more next
-        if (items.size() != size) return node;
-
-        // Have next, send next object
-        ObjectNode next = node.putObject("next");
-        next.putPOJO(rangeName, items.get(size - 1).get(rangeName));
-        return node;
+    protected JsonNode list(QueryApi queryApi, Object hash, @Nullable Object nextRange, int size) {
+        return list(queryApi, hashName, hash, rangeName, nextRange, size);
     }
 
     /**
