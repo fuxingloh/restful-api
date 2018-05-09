@@ -139,4 +139,14 @@ public abstract class RestfulDynamoHashRangeService<T> extends RestfulDynamoServ
         DeleteItemOutcome outcome = table.deleteItem(hashName, hash, rangeName, range);
         return toData(outcome.getItem());
     }
+
+    /**
+     * @param call       json call
+     * @param fieldNames field names to update
+     * @return Updated Date or Null if don't exist
+     */
+    protected T patch(JsonCall call, String... fieldNames) {
+        PrimaryKey key = new PrimaryKey(hashName, call.pathString(hashName), rangeName, call.pathString(rangeName));
+        return patch(call.bodyAsJson(), key, fieldNames);
+    }
 }

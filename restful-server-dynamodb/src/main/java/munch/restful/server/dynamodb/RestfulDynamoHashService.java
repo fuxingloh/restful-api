@@ -53,7 +53,7 @@ public abstract class RestfulDynamoHashService<T> extends RestfulDynamoService<T
 
     /**
      * @param nextHash hash value
-     * @param size size per list
+     * @param size     size per list
      * @return JsonNode result to return
      * @see Table#query(QuerySpec)
      * @see QuerySpec#withExclusiveStartKey(KeyAttribute...)
@@ -146,5 +146,15 @@ public abstract class RestfulDynamoHashService<T> extends RestfulDynamoService<T
 
         DeleteItemOutcome outcome = table.deleteItem(hashName, hash);
         return toData(outcome.getItem());
+    }
+
+    /**
+     * @param call       json call
+     * @param fieldNames field names to update
+     * @return Updated Date or Null if don't exist
+     */
+    protected T patch(JsonCall call, String... fieldNames) {
+        PrimaryKey key = new PrimaryKey(hashName, call.pathString(hashName));
+        return patch(call.bodyAsJson(), key,fieldNames);
     }
 }

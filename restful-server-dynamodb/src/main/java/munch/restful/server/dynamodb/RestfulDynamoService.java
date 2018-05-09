@@ -1,10 +1,12 @@
 package munch.restful.server.dynamodb;
 
-import com.amazonaws.services.dynamodbv2.document.Item;
-import com.amazonaws.services.dynamodbv2.document.RangeKeyCondition;
-import com.amazonaws.services.dynamodbv2.document.Table;
+import com.amazonaws.services.dynamodbv2.document.*;
 import com.amazonaws.services.dynamodbv2.document.api.QueryApi;
+import com.amazonaws.services.dynamodbv2.document.internal.ItemValueConformer;
 import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
+import com.amazonaws.services.dynamodbv2.document.spec.UpdateItemSpec;
+import com.amazonaws.services.dynamodbv2.model.ConditionalCheckFailedException;
+import com.amazonaws.services.dynamodbv2.model.ReturnValue;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import munch.restful.core.JsonUtils;
@@ -14,7 +16,9 @@ import munch.restful.server.JsonService;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -24,6 +28,8 @@ import java.util.stream.Collectors;
  * Project: munch-partners
  */
 public abstract class RestfulDynamoService<T> implements JsonService {
+    protected static final ItemValueConformer valueConformer = new ItemValueConformer();
+
     protected final Table table;
     protected final Class<T> clazz;
 
@@ -128,5 +134,57 @@ public abstract class RestfulDynamoService<T> implements JsonService {
         if (size < 1 || size > maxSize)
             throw new ParamException("Size cannot be less then 0 or greater than " + maxSize);
         return size;
+    }
+
+    /**
+     * @param body       json request body
+     * @param primaryKey primary key, hash or hash + range
+     * @param fieldNames field names to update
+     * @return Updated Date or Null if don't exist
+     */
+    protected T patch(JsonNode body, PrimaryKey primaryKey, String... fieldNames) {
+        return patch(body, primaryKey, s -> {
+        }, fieldNames);
+    }
+
+    /**
+     * @param body         json request body
+     * @param primaryKey   primary key, hash or hash + range
+     * @param specConsumer consume update item spec to change
+     * @param fieldNames   field names to update
+     * @return Updated Date or Null if don't exist
+     */
+    protected T patch(JsonNode body, PrimaryKey primaryKey, Consumer<UpdateItemSpec> specConsumer, String... fieldNames) {
+        JsonNode node = JsonUtils.validate(body, clazz);
+
+        List<AttributeUpdate> updates = new ArrayList<>();
+        for (String fieldName : fieldNames) {
+            if (node.has(fieldName)) {
+                Object pojo = JsonUtils.toObject(node.path(fieldName), Object.class);
+                Object value = valueConformer.transform(pojo);
+                updates.add(new AttributeUpdate(fieldName).put(value));
+            }
+        }
+
+        // If no fields, return null
+        if (updates.isEmpty())
+            throw new ParamException("No applicable fields to update. " + Arrays.toString(fieldNames));
+
+        // Create Update item spec
+        UpdateItemSpec spec = new UpdateItemSpec();
+        spec.withPrimaryKey(primaryKey);
+        spec.withReturnValues(ReturnValue.ALL_NEW);
+        spec.withConditionExpression("attribute_exists(" + hashName + ")");
+        spec.withAttributeUpdate(updates);
+
+        // Spec consumer to edit
+        specConsumer.accept(spec);
+
+        try {
+            UpdateItemOutcome outcome = table.updateItem(spec);
+            return toData(outcome.getItem());
+        } catch (ConditionalCheckFailedException e) {
+            return null;
+        }
     }
 }

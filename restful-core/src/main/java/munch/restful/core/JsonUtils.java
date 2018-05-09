@@ -53,6 +53,10 @@ public final class JsonUtils {
         return objectMapper.valueToTree(object);
     }
 
+    public static JsonNode validate(JsonNode node, Class<?> clazz) {
+        return toTree(toObject(node, clazz));
+    }
+
     public static <T> T toObject(JsonNode node, Class<T> clazz) {
         try {
             return objectMapper.treeToValue(node, clazz);
