@@ -57,6 +57,10 @@ public final class JsonUtils {
         return toTree(toObject(node, clazz));
     }
 
+    public static <T> T deepCopy(T object, Class<T> clazz) {
+        return toObject(toTree(object), clazz);
+    }
+
     public static <T> T toObject(JsonNode node, Class<T> clazz) {
         try {
             return objectMapper.treeToValue(node, clazz);
