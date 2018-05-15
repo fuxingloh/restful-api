@@ -16,10 +16,7 @@ import spark.Response;
 import spark.Spark;
 
 import java.net.SocketTimeoutException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by: Fuxing
@@ -47,8 +44,8 @@ public class RestfulServer {
      *
      * @param routers set of routes for spark server to route with
      */
-    public RestfulServer(Set<RestfulService> routers) {
-        this(routers.toArray(new RestfulService[routers.size()]));
+    public RestfulServer(Collection<RestfulService> routers) {
+        this(routers.toArray(new RestfulService[0]));
     }
 
     /**
@@ -236,13 +233,22 @@ public class RestfulServer {
         return Spark.port();
     }
 
-    public void setHealth(String path, String body) {
-        Spark.get(path, (req, res) -> body);
+    /**
+     * @param path for the health check
+     * @return RestfulServer
+     */
+    public RestfulServer withHealth(String path) {
+        Spark.get(path, (req, res) -> JsonTransformer.Meta200String);
+        return this;
     }
 
-    public RestfulServer withHealth(String path, String body) {
-        setHealth(path, body);
-        return this;
+    /**
+     * Using default /health/check as path
+     *
+     * @return RestfulServer
+     */
+    public RestfulServer withHealth() {
+        return withHealth("/health/check");
     }
 
     /**
@@ -256,11 +262,27 @@ public class RestfulServer {
      * @return started RestfulServer
      */
     public static RestfulServer start(RestfulService service, RestfulService... services) {
-        Set<RestfulService> serviceSet = new HashSet<>(Arrays.asList(services));
-        serviceSet.add(service);
+        return start("", service, services);
+    }
 
-        RestfulServer server = new RestfulServer(serviceSet);
-        server.start();
+    /**
+     * Easy way to start a service in a server with the prefix path and default port
+     * <p>
+     * Start restful server with default port in the config = http.port
+     * Port number can also be injected in the env as: HTTP_PORT
+     *
+     * @param prefixPath path prefix, e.g. version number
+     * @param service    single service to start
+     * @param services   any other services to start
+     * @return started RestfulServer
+     */
+    public static RestfulServer start(String prefixPath, RestfulService service, RestfulService... services) {
+        List<RestfulService> serviceList = new ArrayList<>();
+        serviceList.add(service);
+        serviceList.addAll(Arrays.asList(services));
+
+        RestfulServer server = new RestfulServer(serviceList);
+        Spark.path(prefixPath, server::start);
         return server;
     }
 }
