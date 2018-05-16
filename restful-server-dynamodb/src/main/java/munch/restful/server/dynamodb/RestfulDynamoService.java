@@ -105,7 +105,6 @@ public abstract class RestfulDynamoService<T> implements JsonService {
         return node;
     }
 
-
     /**
      * This method will also validate the data
      * Hash & Range will also be validated if present
@@ -118,11 +117,16 @@ public abstract class RestfulDynamoService<T> implements JsonService {
      * @return to Item
      */
     protected Item toItem(JsonNode json, Object hash) {
-        validate(JsonUtils.toObject(json, clazz));
+        ((ObjectNode) json).putPOJO(hashName, hash);
 
-        Item item = Item.fromJSON(JsonUtils.toString(json));
-        item.with(hashName, hash);
-        return item;
+        // Convert to Object class to validation against Class Type
+        T object = JsonUtils.toObject(json, clazz);
+        validate(object);
+
+        // Convert validated object back to json to persist
+        json = JsonUtils.toTree(object);
+
+        return Item.fromJSON(JsonUtils.toString(json));
     }
 
     /**

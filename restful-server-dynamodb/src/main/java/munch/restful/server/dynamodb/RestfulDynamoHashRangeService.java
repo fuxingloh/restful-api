@@ -4,6 +4,7 @@ import com.amazonaws.services.dynamodbv2.document.*;
 import com.amazonaws.services.dynamodbv2.document.api.QueryApi;
 import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import munch.restful.core.exception.ParamException;
 import munch.restful.server.JsonCall;
 
@@ -109,8 +110,8 @@ public abstract class RestfulDynamoHashRangeService<T> extends RestfulDynamoServ
         ParamException.requireNonNull(hashName, hash);
         ParamException.requireNonNull(rangeName, range);
 
+        ((ObjectNode) json).putPOJO(rangeName, range);
         Item item = toItem(json, hash);
-        item.with(rangeName, range);
 
         PutItemOutcome outcome = table.putItem(item);
         return toData(outcome.getItem());
