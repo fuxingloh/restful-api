@@ -26,17 +26,19 @@ public final class ExceptionParser {
      * @param type     to resolve
      * @param consumer to apply Exception
      */
-    public static void addConsumer(String type, Consumer<StructuredException> consumer) {
+    public static void consume(String type, Consumer<StructuredException> consumer) {
         mapper.put(type, consumer);
     }
 
     /**
+     * Register a new type to resolve
+     *
      * @param type     to resolve
      * @param function to apply Exception
      * @param <T>      to resolve to
      */
-    public static <T extends StructuredException> void addResolver(String type, Function<StructuredException, T> function) {
-        addConsumer(type, e -> {
+    public static <T extends StructuredException> void register(String type, Function<StructuredException, T> function) {
+        consume(type, e -> {
             throw function.apply(e);
         });
     }
