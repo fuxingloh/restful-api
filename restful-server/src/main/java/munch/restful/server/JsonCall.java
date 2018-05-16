@@ -206,7 +206,7 @@ public class JsonCall {
     public boolean queryBool(String name, boolean defaultValue) throws ParamException {
         String value = queryString(name);
         if (StringUtils.isBlank(value)) return defaultValue;
-        return Boolean.parseBoolean(queryString(name));
+        return Boolean.parseBoolean(value);
     }
 
     /**
@@ -233,6 +233,40 @@ public class JsonCall {
             return value;
         }
         return defaultValue;
+    }
+
+    /**
+     * @param name         of query string
+     * @param defaultValue to return if not found
+     * @param clazz        class to bound Object to
+     * @param <T>          T
+     * @return Object value
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T queryObject(String name, T defaultValue, Class<T> clazz) {
+        String value = request.queryParams(name);
+        if (StringUtils.isBlank(value)) return defaultValue;
+        if (clazz == String.class) return (T) value;
+
+        try {
+            if (clazz == Long.class) {
+                Long i = Long.parseLong(value);
+                return (T) i;
+            }
+            if (clazz == Integer.class) {
+                Integer i = Integer.parseInt(value);
+                return (T) i;
+            }
+        } catch (NumberFormatException e) {
+            throw new ParamException(name);
+        }
+
+        if (clazz == Boolean.class) {
+            Boolean b = Boolean.parseBoolean(value);
+            return (T) b;
+        }
+
+        throw new IllegalStateException(clazz.getSimpleName() + " is not implemented for queryObject()");
     }
 
     /**
