@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import munch.restful.core.JsonUtils;
 import munch.restful.core.exception.ParamException;
 import munch.restful.core.exception.ValidationException;
+import munch.restful.server.JsonCall;
 import munch.restful.server.JsonService;
 
 import javax.annotation.Nullable;
@@ -47,6 +48,23 @@ public abstract class RestfulDynamoService<T> implements JsonService {
         this.clazz = clazz;
         this.hashName = hashName;
         this.maxSize = maxSize;
+    }
+
+    /**
+     * This method will use hashName to get the hash value from call and rangeName to get the range value from call
+     *
+     * @param queryApi  to query
+     * @param hashName  name of hash key
+     * @param rangeName name of range key
+     * @param call      json call
+     * @return JsonNode result to return
+     */
+    protected JsonNode list(QueryApi queryApi, String hashName, String rangeName, JsonCall call) {
+        return list(queryApi,
+                hashName, call.pathString(hashName),
+                rangeName, call.queryString("next." + rangeName, null),
+                call.queryInt("size", 20)
+        );
     }
 
     /**
