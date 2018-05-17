@@ -27,6 +27,7 @@ import java.util.*;
 public class RestfulServer {
     protected static final Logger logger = LoggerFactory.getLogger(RestfulServer.class);
     protected static final ObjectMapper objectMapper = JsonService.objectMapper;
+    protected static final String DEFAULT_HEALTH_PATH = "/health/check";
 
     private final RestfulService[] routers;
     private boolean started = false;
@@ -85,7 +86,11 @@ public class RestfulServer {
         logger.info("Path logging is registered to trace.");
         // Because it is trace, to activate logging
         // set munch.restful.server.RestfulServer to trace
-        Spark.before((request, response) -> logger.trace("{}: {}", request.requestMethod(), request.pathInfo()));
+        Spark.before((request, response) -> {
+            if (!request.pathInfo().equals(DEFAULT_HEALTH_PATH)) {
+                logger.trace("{}: {}", request.requestMethod(), request.pathInfo());
+            }
+        });
 
         // Spark after register all path content type as json
         Spark.after((req, res) -> res.type(JsonService.APP_JSON));
@@ -186,7 +191,7 @@ public class RestfulServer {
         try {
             response.status(exception.getCode());
             RestfulMeta restfulMeta = exception.toMeta();
-            if (!debug) {
+            if (!debug && restfulMeta.getError() != null) {
                 // If debug mode is disabled, stacktrace and source will be removed
                 // Exception will still be logged
                 restfulMeta.getError().setStacktrace(null);
@@ -248,7 +253,7 @@ public class RestfulServer {
      * @return RestfulServer
      */
     public RestfulServer withHealth() {
-        return withHealth("/health/check");
+        return withHealth(DEFAULT_HEALTH_PATH);
     }
 
     /**
