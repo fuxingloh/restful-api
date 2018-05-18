@@ -22,7 +22,7 @@ public class RestfulDynamoHashClient<T> extends RestfulDynamoClient<T> {
      * @param clazz    class for parsing
      * @param hashName name of hash
      */
-    public RestfulDynamoHashClient(String url, Class<T> clazz, String hashName) {
+    protected RestfulDynamoHashClient(String url, Class<T> clazz, String hashName) {
         super(url, clazz, hashName);
     }
 
@@ -32,7 +32,7 @@ public class RestfulDynamoHashClient<T> extends RestfulDynamoClient<T> {
      * @param size     size per list
      * @return List of data with next node
      */
-    public NextNodeList<T> list(String path, @Nullable Object nextHash, int size) {
+    protected NextNodeList<T> list(String path, @Nullable Object nextHash, int size) {
         RestfulRequest request = doGet(path);
         request.queryString("size", size);
 
@@ -51,7 +51,7 @@ public class RestfulDynamoHashClient<T> extends RestfulDynamoClient<T> {
      * @param path for querying via get request, e.g. /resources
      * @return Iterator of all Data
      */
-    public Iterator<T> list(String path) {
+    protected Iterator<T> list(String path) {
         return new Iterator<T>() {
             NextNodeList<T> nextNodeList = list(path, null, 50);
             Iterator<T> iterator = nextNodeList.iterator();
@@ -85,7 +85,7 @@ public class RestfulDynamoHashClient<T> extends RestfulDynamoClient<T> {
      * @return Object, Null = not found
      */
     @Nullable
-    public T get(String path, Object hash) {
+    protected T get(String path, Object hash) {
         RestfulRequest request = doGet(path);
         request.path(hashName, hash);
         return request.asDataObject(clazz);
@@ -97,7 +97,7 @@ public class RestfulDynamoHashClient<T> extends RestfulDynamoClient<T> {
      * @param data body value to put
      * @return Object
      */
-    public T put(String path, Object hash, T data) {
+    protected T put(String path, Object hash, T data) {
         RestfulRequest request = doPut(path);
         request.path(hashName, hash);
         request.body(data);
@@ -110,7 +110,7 @@ public class RestfulDynamoHashClient<T> extends RestfulDynamoClient<T> {
      * @return Object, Null = not found
      */
     @Nullable
-    public T delete(String path, Object hash) {
+    protected T delete(String path, Object hash) {
         RestfulRequest request = doDelete(path);
         request.path(hashName, hash);
         return request.asDataObject(clazz);

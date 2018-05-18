@@ -21,7 +21,7 @@ public class RestfulDynamoHashRangeClient<T> extends RestfulDynamoClient<T> {
      * @param hashName  name of hash
      * @param rangeName name of range
      */
-    public RestfulDynamoHashRangeClient(String url, Class<T> clazz, String hashName, String rangeName) {
+    protected RestfulDynamoHashRangeClient(String url, Class<T> clazz, String hashName, String rangeName) {
         super(url, clazz, hashName);
         this.rangeName = rangeName;
     }
@@ -33,7 +33,7 @@ public class RestfulDynamoHashRangeClient<T> extends RestfulDynamoClient<T> {
      * @param size      per list
      * @return PagedList of Data or Empty
      */
-    public NextNodeList<T> list(String path, Object hash, @Nullable Object nextRange, int size) {
+    protected NextNodeList<T> list(String path, Object hash, @Nullable Object nextRange, int size) {
         return list(path, hashName, hash, rangeName, nextRange, size);
     }
 
@@ -43,7 +43,7 @@ public class RestfulDynamoHashRangeClient<T> extends RestfulDynamoClient<T> {
      * @param size default size per list
      * @return Iterator of all Data with the same hash
      */
-    public Iterator<T> list(String path, Object hash, int size) {
+    protected Iterator<T> list(String path, Object hash, int size) {
         return list(path, hashName, hash, rangeName, size);
     }
 
@@ -54,7 +54,7 @@ public class RestfulDynamoHashRangeClient<T> extends RestfulDynamoClient<T> {
      * @return Object, Null = not found
      */
     @Nullable
-    public T get(String path, Object hash, Object range) {
+    protected T get(String path, Object hash, Object range) {
         RestfulRequest request = doGet(path);
         request.path(hashName, hash);
         request.path(rangeName, range);
@@ -68,7 +68,7 @@ public class RestfulDynamoHashRangeClient<T> extends RestfulDynamoClient<T> {
      * @param data  body value to put
      * @return Object
      */
-    public T put(String path, Object hash, Object range, T data) {
+    protected T put(String path, Object hash, Object range, T data) {
         RestfulRequest request = doPut(path);
         request.path(hashName, hash);
         request.path(rangeName, range);
@@ -83,7 +83,7 @@ public class RestfulDynamoHashRangeClient<T> extends RestfulDynamoClient<T> {
      * @return Object, Null = not found
      */
     @Nullable
-    public T delete(String path, Object hash, Object range) {
+    protected T delete(String path, Object hash, Object range) {
         RestfulRequest request = doDelete(path);
         request.path(hashName, hash);
         request.path(rangeName, range);

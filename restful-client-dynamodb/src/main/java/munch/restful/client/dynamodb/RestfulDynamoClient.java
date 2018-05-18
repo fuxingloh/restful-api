@@ -26,7 +26,7 @@ public abstract class RestfulDynamoClient<T> extends RestfulClient {
      * @param clazz    class for parsing
      * @param hashName primary hash name of the table
      */
-    public RestfulDynamoClient(String url, Class<T> clazz, String hashName) {
+    protected RestfulDynamoClient(String url, Class<T> clazz, String hashName) {
         super(url);
         this.clazz = clazz;
         this.hashName = hashName;
@@ -41,7 +41,7 @@ public abstract class RestfulDynamoClient<T> extends RestfulClient {
      * @param size      per list
      * @return PagedList of Data or Empty
      */
-    public NextNodeList<T> list(String path, String hashName, Object hash, String rangeName, @Nullable Object nextRange, int size) {
+    protected NextNodeList<T> list(String path, String hashName, Object hash, String rangeName, @Nullable Object nextRange, int size) {
         RestfulRequest request = doGet(path);
         request.path(hashName, hash);
         request.queryString("size", size);
@@ -65,7 +65,7 @@ public abstract class RestfulDynamoClient<T> extends RestfulClient {
      * @param size      default size per list
      * @return Iterator of all Data with the same hash
      */
-    public Iterator<T> list(String path, String hashName, Object hash, String rangeName, int size) {
+    protected Iterator<T> list(String path, String hashName, Object hash, String rangeName, int size) {
         return new Iterator<T>() {
             NextNodeList<T> nextNodeList = list(path, hashName, hash, rangeName, null, size);
             Iterator<T> iterator = nextNodeList.iterator();
