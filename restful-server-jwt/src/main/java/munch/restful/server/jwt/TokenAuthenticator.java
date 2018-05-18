@@ -1,6 +1,7 @@
 package munch.restful.server.jwt;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
+import jdk.internal.jline.internal.Nullable;
 import munch.restful.server.JsonCall;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +14,7 @@ import java.util.Optional;
  * Time: 1:32 AM
  * Project: restful-api
  */
-public abstract class TokenAuthenticator {
+public abstract class TokenAuthenticator<T extends AuthenticatedToken> {
     protected static final Logger logger = LoggerFactory.getLogger(TokenAuthenticator.class);
 
     /**
@@ -23,7 +24,7 @@ public abstract class TokenAuthenticator {
      * @return AuthenticatedToken
      * @throws AuthenticationException authentication error
      */
-    public AuthenticatedToken authenticate(JsonCall call) throws AuthenticationException {
+    public T authenticate(JsonCall call) throws AuthenticationException {
         return authenticate(call, true);
     }
 
@@ -33,11 +34,12 @@ public abstract class TokenAuthenticator {
      * @return AuthenticatedToken
      * @throws AuthenticationException authentication error
      */
-    public AuthenticatedToken authenticate(JsonCall call, boolean requires) throws AuthenticationException {
+    @Nullable
+    public T authenticate(JsonCall call, boolean requires) throws AuthenticationException {
         DecodedJWT decoded = call.getJWT();
         if (decoded == null) {
             if (requires) throw new AuthenticationException(403, "Forbidden");
-            return new AuthenticatedToken(null);
+            return null;
         }
         return authenticate(decoded);
     }
@@ -49,13 +51,13 @@ public abstract class TokenAuthenticator {
      * @return AuthenticatedToken
      * @throws AuthenticationException authentication error
      */
-    public Optional<AuthenticatedToken> optional(JsonCall call) throws AuthenticationException {
+    public Optional<T> optional(JsonCall call) throws AuthenticationException {
         DecodedJWT decoded = call.getJWT();
         if (decoded == null) return Optional.empty();
         return Optional.of(authenticate(decoded));
     }
 
-    public abstract AuthenticatedToken authenticate(DecodedJWT decodedJwt) throws AuthenticationException;
+    public abstract T authenticate(DecodedJWT decodedJwt) throws AuthenticationException;
 
     /**
      * Force authentication and return subject

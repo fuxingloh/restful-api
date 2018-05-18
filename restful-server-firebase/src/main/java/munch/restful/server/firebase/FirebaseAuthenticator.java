@@ -3,7 +3,6 @@ package munch.restful.server.firebase;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
-import munch.restful.server.jwt.AuthenticatedToken;
 import munch.restful.server.jwt.AuthenticationException;
 import munch.restful.server.jwt.TokenAuthenticator;
 import org.slf4j.Logger;
@@ -17,7 +16,7 @@ import java.util.concurrent.ExecutionException;
  * Time: 1:32 AM
  * Project: restful-api
  */
-public final class FirebaseAuthenticator extends TokenAuthenticator {
+public final class FirebaseAuthenticator extends TokenAuthenticator<FirebaseAuthenticatedToken> {
     private static final Logger logger = LoggerFactory.getLogger(FirebaseAuthenticator.class);
 
     private FirebaseAuth getAuth() {
@@ -25,7 +24,7 @@ public final class FirebaseAuthenticator extends TokenAuthenticator {
     }
 
     @Override
-    public AuthenticatedToken authenticate(DecodedJWT decodedJwt) throws AuthenticationException {
+    public FirebaseAuthenticatedToken authenticate(DecodedJWT decodedJwt) throws AuthenticationException {
         try {
             FirebaseToken decodedToken = getAuth().verifyIdTokenAsync(decodedJwt.getToken()).get();
             return new FirebaseAuthenticatedToken(decodedJwt, decodedToken);
