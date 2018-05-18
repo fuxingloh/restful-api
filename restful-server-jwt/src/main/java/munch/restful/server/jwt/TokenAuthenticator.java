@@ -56,4 +56,26 @@ public abstract class TokenAuthenticator {
     }
 
     public abstract AuthenticatedToken authenticate(DecodedJWT decodedJwt) throws AuthenticationException;
+
+    /**
+     * Force authentication and return subject
+     *
+     * @param call json call
+     * @return subject, AKA: userId
+     * @throws AuthenticationException authentication error
+     */
+    public String getSubject(JsonCall call) {
+        return authenticate(call, true).getSubject();
+    }
+
+    /**
+     * Optional authentication and return optional subject
+     *
+     * @param call json call
+     * @return optional subject, AKA: userId
+     * @throws AuthenticationException authentication error
+     */
+    public Optional<String> optionalSubject(JsonCall call) {
+        return optional(call).map(AuthenticatedToken::getSubject);
+    }
 }

@@ -5,7 +5,7 @@ allprojects {
     apply plugin: 'maven-publish'
 
     group 'munch.restful'
-    version '1.4.22'
+    version '1.4.23'
 
     ext.guiceVersion = '4.2.0'
     ext.awsVersion = '1.11.313'
