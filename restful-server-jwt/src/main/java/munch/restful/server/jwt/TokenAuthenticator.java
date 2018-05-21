@@ -78,6 +78,8 @@ public abstract class TokenAuthenticator<T extends AuthenticatedToken> {
      * @throws AuthenticationException authentication error
      */
     public Optional<String> optionalSubject(JsonCall call) {
-        return optional(call).map(AuthenticatedToken::getSubject);
+        Optional<? extends AuthenticatedToken> optional = optional(call);
+        String subject = optional.map(AuthenticatedToken::getSubject).orElse(null);
+        return Optional.ofNullable(subject);
     }
 }
