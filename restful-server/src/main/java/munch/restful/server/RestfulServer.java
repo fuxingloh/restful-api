@@ -286,8 +286,13 @@ public class RestfulServer {
         serviceList.add(service);
         serviceList.addAll(Arrays.asList(services));
 
-        RestfulServer server = new RestfulServer(serviceList);
-        Spark.path(prefixPath, server::start);
+        RestfulServer server = new RestfulServer(serviceList) {
+            @Override
+            protected void setupRouters() {
+                Spark.path(prefixPath, super::setupRouters);
+            }
+        };
+        server.start();
         return server;
     }
 }
