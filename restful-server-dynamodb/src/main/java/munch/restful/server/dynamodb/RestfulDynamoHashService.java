@@ -1,8 +1,10 @@
 package munch.restful.server.dynamodb;
 
 import com.amazonaws.services.dynamodbv2.document.*;
+import com.amazonaws.services.dynamodbv2.document.spec.DeleteItemSpec;
 import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
+import com.amazonaws.services.dynamodbv2.model.ReturnValue;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import munch.restful.core.exception.ParamException;
@@ -106,24 +108,24 @@ public abstract class RestfulDynamoHashService<T> extends RestfulDynamoService<T
 
     /**
      * @param call json call with pathString(hashName) and request body
-     * @return Object saved
+     * @return Meta200 if successful
      * @see RestfulDynamoHashService#put(Object, JsonNode)
      */
-    protected T put(JsonCall call) {
+    protected JsonNode put(JsonCall call) {
         return put(call.pathString(hashName), call.bodyAsJson());
     }
 
     /**
      * @param hash value
      * @param json body
-     * @return Object saved
+     * @return Meta200 if successful
      */
-    protected T put(Object hash, JsonNode json) {
+    protected JsonNode put(Object hash, JsonNode json) {
         ParamException.requireNonNull(hashName, hash);
 
         Item item = toItem(json, hash);
-        PutItemOutcome outcome = table.putItem(item);
-        return toData(outcome.getItem());
+        table.putItem(item);
+        return Meta200;
     }
 
     /**
@@ -144,7 +146,9 @@ public abstract class RestfulDynamoHashService<T> extends RestfulDynamoService<T
     protected T delete(Object hash) {
         ParamException.requireNonNull(hashName, hash);
 
-        DeleteItemOutcome outcome = table.deleteItem(hashName, hash);
+        DeleteItemOutcome outcome = table.deleteItem(new DeleteItemSpec()
+                .withPrimaryKey(hashName, hash)
+                .withReturnValues(ReturnValue.ALL_OLD));
         return toData(outcome.getItem());
     }
 
@@ -155,6 +159,6 @@ public abstract class RestfulDynamoHashService<T> extends RestfulDynamoService<T
      */
     protected T patch(JsonCall call, String... fieldNames) {
         PrimaryKey key = new PrimaryKey(hashName, call.pathString(hashName));
-        return patch(call.bodyAsJson(), key,fieldNames);
+        return patch(call.bodyAsJson(), key, fieldNames);
     }
 }

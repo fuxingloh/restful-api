@@ -66,14 +66,12 @@ public class RestfulDynamoHashRangeClient<T> extends RestfulDynamoClient<T> {
      * @param hash  value
      * @param range value
      * @param data  body value to put
-     * @return Object
      */
-    protected T put(String path, Object hash, Object range, T data) {
+    protected void put(String path, Object hash, Object range, T data) {
         RestfulRequest request = doPut(path);
         request.path(hashName, hash);
         request.path(rangeName, range);
         request.body(data);
-        return request.asDataObject(clazz);
     }
 
     /**

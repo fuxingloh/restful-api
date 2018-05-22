@@ -95,13 +95,12 @@ public class RestfulDynamoHashClient<T> extends RestfulDynamoClient<T> {
      * @param path for put request, e.g. /resources/{hash}
      * @param hash value
      * @param data body value to put
-     * @return Object
      */
-    protected T put(String path, Object hash, T data) {
+    protected void put(String path, Object hash, T data) {
         RestfulRequest request = doPut(path);
         request.path(hashName, hash);
         request.body(data);
-        return request.asDataObject(clazz);
+        request.asResponse();
     }
 
     /**

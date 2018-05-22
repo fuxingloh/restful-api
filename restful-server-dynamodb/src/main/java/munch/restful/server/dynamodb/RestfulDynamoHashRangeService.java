@@ -2,7 +2,9 @@ package munch.restful.server.dynamodb;
 
 import com.amazonaws.services.dynamodbv2.document.*;
 import com.amazonaws.services.dynamodbv2.document.api.QueryApi;
+import com.amazonaws.services.dynamodbv2.document.spec.DeleteItemSpec;
 import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
+import com.amazonaws.services.dynamodbv2.model.ReturnValue;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import munch.restful.core.exception.ParamException;
@@ -96,7 +98,7 @@ public abstract class RestfulDynamoHashRangeService<T> extends RestfulDynamoServ
      * @return Object saved
      * @see RestfulDynamoHashRangeService#put(Object, Object, JsonNode)
      */
-    protected T put(JsonCall call) {
+    protected JsonNode put(JsonCall call) {
         return put(call.pathString(hashName), call.pathString(rangeName), call.bodyAsJson());
     }
 
@@ -106,15 +108,15 @@ public abstract class RestfulDynamoHashRangeService<T> extends RestfulDynamoServ
      * @param json  body
      * @return Object saved
      */
-    protected T put(Object hash, Object range, JsonNode json) {
+    protected JsonNode put(Object hash, Object range, JsonNode json) {
         ParamException.requireNonNull(hashName, hash);
         ParamException.requireNonNull(rangeName, range);
 
         ((ObjectNode) json).putPOJO(rangeName, range);
         Item item = toItem(json, hash);
 
-        PutItemOutcome outcome = table.putItem(item);
-        return toData(outcome.getItem());
+        table.putItem(item);
+        return Meta200;
     }
 
     /**
@@ -137,7 +139,9 @@ public abstract class RestfulDynamoHashRangeService<T> extends RestfulDynamoServ
         ParamException.requireNonNull(hashName, hash);
         ParamException.requireNonNull(rangeName, range);
 
-        DeleteItemOutcome outcome = table.deleteItem(hashName, hash, rangeName, range);
+        DeleteItemOutcome outcome = table.deleteItem(new DeleteItemSpec()
+                .withPrimaryKey(hashName, hash, rangeName, range)
+                .withReturnValues(ReturnValue.ALL_OLD));
         return toData(outcome.getItem());
     }
 

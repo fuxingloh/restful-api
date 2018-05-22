@@ -93,7 +93,12 @@ public class RestfulServer {
         });
 
         // Spark after register all path content type as json
-        Spark.after((req, res) -> res.type(JsonService.APP_JSON));
+        Spark.after((req, res) -> {
+            res.type(JsonService.APP_JSON);
+            if (res.body().equals(JsonTransformer.Meta404String)) {
+                res.status(404);
+            }
+        });
         logger.info("Registered all response Content-Type as application/json");
 
         // Setup all routers
