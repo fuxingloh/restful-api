@@ -236,7 +236,7 @@ public class RestfulRequest {
             }
 
             // Try parse error
-            ExceptionParser.parse(e);
+            munch.restful.core.exception.ExceptionParser.parse(e);
             throw new UnknownException(e);
         }
     }
@@ -279,7 +279,7 @@ public class RestfulRequest {
                 }
 
                 // Try parse error
-                ExceptionParser.parse(e);
+                munch.restful.core.exception.ExceptionParser.parse(e);
                 throw new UnknownException(e);
             }
         }
