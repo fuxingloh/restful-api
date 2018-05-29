@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -152,6 +153,17 @@ public class RestfulResponse {
      */
     public <T> List<T> asDataList(Class<T> clazz) {
         return JsonUtils.toList(getDataNode(), clazz);
+    }
+
+    /**
+     * @param keyClass   class for Key
+     * @param valueClass class for Value
+     * @param <K>        key class
+     * @param <V>        value class
+     * @return Map
+     */
+    public <K, V> Map<K, V> asDataMap(Class<K> keyClass, Class<V> valueClass) {
+        return JsonUtils.toMap(getDataNode(), keyClass, valueClass);
     }
 
     /**

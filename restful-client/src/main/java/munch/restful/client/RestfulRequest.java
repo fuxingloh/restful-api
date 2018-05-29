@@ -187,12 +187,34 @@ public class RestfulRequest {
         return asResponse().getDataNode();
     }
 
+    /**
+     * @param clazz class of object
+     * @param <T>   type of object
+     * @return object if data node is present
+     * return null if node is null or missing
+     */
     public <T> T asDataObject(Class<T> clazz) {
         return asResponse().asDataObject(clazz);
     }
 
+    /**
+     * @param clazz class of array type
+     * @param <T>   Type
+     * @return List of given type
+     */
     public <T> List<T> asDataList(Class<T> clazz) {
         return asResponse().asDataList(clazz);
+    }
+
+    /**
+     * @param keyClass   class for Key
+     * @param valueClass class for Value
+     * @param <K>        key class
+     * @param <V>        value class
+     * @return Map
+     */
+    public <K, V> Map<K, V> asDataMap(Class<K> keyClass, Class<V> valueClass) {
+        return asResponse().asDataMap(keyClass, valueClass);
     }
 
     /**
