@@ -29,6 +29,25 @@ public class StructuredException extends RuntimeException {
     }
 
     /**
+     * @param code    error code
+     * @param clazz   class to register to
+     * @param message error message in detail
+     */
+    public StructuredException(int code, Class<? extends StructuredException> clazz, String message) {
+        this(code, clazz.getSimpleName(), message);
+    }
+
+    /**
+     * @param code      error code
+     * @param clazz     class to register to
+     * @param message   error message in detail
+     * @param throwable error stacktrace
+     */
+    public StructuredException(int code, Class<? extends StructuredException> clazz, String message, Throwable throwable) {
+        this(code, clazz.getSimpleName(), message, throwable);
+    }
+
+    /**
      * @param code    code for error
      * @param type    error type name
      * @param message error message
