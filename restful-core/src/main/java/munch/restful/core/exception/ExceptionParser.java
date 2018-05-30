@@ -26,16 +26,28 @@ public final class ExceptionParser {
     }
 
     /**
-     * Register a new type to resolve
+     * Register a new exception type to resolve
      *
-     * @param type     to resolve
-     * @param function to apply Exception
-     * @param <T>      to resolve to
+     * @param type     name type to register
+     * @param function to cast Exception type
+     * @param <T>      Exception Class Type
      */
     public static <T extends StructuredException> void register(String type, Function<StructuredException, T> function) {
         consume(type, e -> {
             throw function.apply(e);
         });
+    }
+
+    /**
+     * Register a new class type of resolve
+     * Exception type must be same as class name for this to work
+     *
+     * @param tClass   exception class to register
+     * @param function to cast Exception type
+     * @param <T>      Exception Class Type
+     */
+    public static <T extends StructuredException> void register(Class<T> tClass, Function<StructuredException, T> function) {
+        register(tClass.getSimpleName(), function);
     }
 
     public static void parse(Exception e) {
