@@ -46,7 +46,7 @@ public final class JsonUtils {
         }
     }
 
-    public static JsonNode toTree(Object object) {
+    public static <T extends JsonNode> T toTree(Object object) {
         return objectMapper.valueToTree(object);
     }
 
