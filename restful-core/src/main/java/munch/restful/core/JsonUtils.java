@@ -10,10 +10,7 @@ import com.fasterxml.jackson.databind.type.MapType;
 import munch.restful.core.exception.JsonException;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -101,6 +98,24 @@ public final class JsonUtils {
             list.add(mapper.apply(node));
         }
         return list;
+    }
+
+    public static <T> Set<T> toSet(JsonNode nodes, Class<T> clazz) {
+        try {
+            CollectionType type = objectMapper.getTypeFactory().constructCollectionType(Set.class, clazz);
+            return objectMapper.convertValue(nodes, type);
+        } catch (IllegalArgumentException e) {
+            throw new JsonException(e);
+        }
+    }
+
+    public static <T> Set<T> toSet(String json, Class<T> clazz) {
+        try {
+            CollectionType type = objectMapper.getTypeFactory().constructCollectionType(Set.class, clazz);
+            return objectMapper.readValue(json, type);
+        } catch (IOException e) {
+            throw new JsonException(e);
+        }
     }
 
     public static <K, V> Map<K, V> toMap(JsonNode nodes, Class<K> keyClass, Class<V> valueClass) {
