@@ -1,11 +1,11 @@
 package munch.restful.server.jwt;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
-import jdk.internal.jline.internal.Nullable;
 import munch.restful.server.JsonCall;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.util.Optional;
 
 /**

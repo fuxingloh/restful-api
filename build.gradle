@@ -5,13 +5,13 @@ allprojects {
     apply plugin: 'maven-publish'
 
     group 'munch.restful'
-    version '1.4.36'
+    version '1.4.38'
 
     ext.guiceVersion = '4.2.0'
     ext.awsVersion = '1.11.313'
 
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
+    sourceCompatibility = 1.9
+    targetCompatibility = 1.9
     compileJava.options.encoding = 'UTF-8'
 
     task sourcesJar(type: Jar, dependsOn: classes) {
