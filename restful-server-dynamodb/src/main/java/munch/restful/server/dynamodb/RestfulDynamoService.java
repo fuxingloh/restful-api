@@ -13,6 +13,7 @@ import munch.restful.core.JsonUtils;
 import munch.restful.core.exception.ParamException;
 import munch.restful.core.exception.ValidationException;
 import munch.restful.server.JsonCall;
+import munch.restful.server.JsonResult;
 import munch.restful.server.JsonService;
 
 import javax.annotation.Nullable;
@@ -59,7 +60,7 @@ public abstract class RestfulDynamoService<T> implements JsonService {
      * @param call      json call
      * @return JsonNode result to return
      */
-    protected JsonNode list(QueryApi queryApi, String hashName, String rangeName, JsonCall call) {
+    protected JsonResult list(QueryApi queryApi, String hashName, String rangeName, JsonCall call) {
         return list(queryApi,
                 hashName, call.pathString(hashName),
                 rangeName, call.queryString("next." + rangeName, null),
@@ -77,7 +78,7 @@ public abstract class RestfulDynamoService<T> implements JsonService {
      * @return JsonNode result to return
      * @see QueryApi#query(QuerySpec)
      */
-    protected JsonNode list(QueryApi queryApi, String hashName, Object hash, String rangeName, @Nullable Object nextRange, int size) {
+    protected JsonResult list(QueryApi queryApi, String hashName, Object hash, String rangeName, @Nullable Object nextRange, int size) {
         ParamException.requireNonNull(hashName, hash);
 
         QuerySpec querySpec = new QuerySpec();
@@ -94,15 +95,15 @@ public abstract class RestfulDynamoService<T> implements JsonService {
 
 
         List<T> dataList = items.stream().map(this::toData).collect(Collectors.toList());
-        ObjectNode node = nodes(200, dataList);
+        JsonResult result = result(200, dataList);
 
         // If no more next
-        if (items.size() != size) return node;
+        if (items.size() != size) return result;
 
         // Have next, send next object
-        ObjectNode next = node.putObject("next");
-        next.putPOJO(rangeName, items.get(size - 1).get(rangeName));
-        return node;
+        result.put("next", JsonUtils.createObjectNode()
+                .putPOJO(rangeName, items.get(size - 1).get(rangeName)));
+        return result;
     }
 
     /**

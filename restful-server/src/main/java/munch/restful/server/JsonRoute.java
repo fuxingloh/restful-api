@@ -1,6 +1,5 @@
 package munch.restful.server;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import spark.Request;
 import spark.Response;
 import spark.Route;
@@ -15,6 +14,7 @@ import spark.Route;
  */
 @FunctionalInterface
 public interface JsonRoute extends Route {
+    String APP_JSON = "application/json";
 
     /**
      * Invoked when a request is made on this route's corresponding path e.g. '/hello'
@@ -26,15 +26,16 @@ public interface JsonRoute extends Route {
     Object handle(JsonCall call) throws Exception;
 
     @Override
-    default Object handle(Request request, Response response) throws Exception {
-        Object object = handle(new JsonCall(request, response));
-        if (object == null) return null;
+    default JsonResult handle(Request request, Response response) throws Exception {
+        Object result = handle(new JsonCall(request, response));
+        response.type(APP_JSON);
 
-        if (object instanceof JsonNode) {
-            // Set status code
-            response.status(((JsonNode) object).path("meta")
-                    .path("code").asInt(200));
+        if (result instanceof JsonResult) {
+            response.status(((JsonResult) result).getCode());
+            return (JsonResult) result;
         }
-        return object;
+
+        if (result == null) return JsonResult.notFound();
+        return JsonResult.ok(result);
     }
 }

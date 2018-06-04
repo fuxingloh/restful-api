@@ -19,7 +19,6 @@ public interface JsonFilter extends Filter {
      * Invoked when a request is made on this route's corresponding path e.g. '/hello'
      *
      * @param call Call object contains request and response object
-     * @return The content to be set in the response
      * @throws Exception implementation can choose to throw exception
      */
     void handle(JsonCall call) throws Exception;

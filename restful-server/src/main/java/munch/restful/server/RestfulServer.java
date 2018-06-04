@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
+import munch.restful.core.JsonUtils;
 import munch.restful.core.RestfulMeta;
 import munch.restful.core.exception.CodeException;
 import munch.restful.core.exception.StructuredException;
@@ -92,22 +93,13 @@ public class RestfulServer {
             }
         });
 
-        // Spark after register all path content type as json
-        Spark.after((req, res) -> {
-            res.type(JsonService.APP_JSON);
-            if (res.body().equals(JsonTransformer.Meta404String)) {
-                res.status(404);
-            }
-        });
-        logger.info("Registered all response Content-Type as application/json");
-
         // Setup all routers
         setupRouters();
 
         // Default handler for not found
         Spark.notFound((req, res) -> {
             String path = req.pathInfo();
-            return JsonTransformer.toJson(objectMapper.createObjectNode()
+            return JsonUtils.toString(objectMapper.createObjectNode()
                     .set("meta", objectMapper.valueToTree(RestfulMeta.builder()
                             .code(404)
                             .errorType("EndpointNotFound")

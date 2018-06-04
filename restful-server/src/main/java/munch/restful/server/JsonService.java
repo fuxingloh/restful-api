@@ -1,14 +1,7 @@
 package munch.restful.server;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import munch.restful.core.JsonUtils;
-import munch.restful.core.RestfulMeta;
-import munch.restful.core.exception.JsonException;
-import spark.ResponseTransformer;
 import spark.RouteGroup;
 import spark.Spark;
 
@@ -25,21 +18,14 @@ public interface JsonService extends RestfulService {
 
     ObjectMapper objectMapper = JsonUtils.objectMapper;
 
-    /**
-     * Theses nodes are pre-build notes, use the as a whole don't
-     * put them in another node
-     */
-    JsonNode Meta200 = JsonTransformer.Meta200;
-    JsonNode Meta404 = JsonTransformer.Meta404;
-
-    ResponseTransformer toJson = new JsonTransformer();
+    JsonTransformer toJson = new JsonTransformer();
 
     /**
      * Override for custom transformer
      *
      * @return default toJson transformer for json service to use
      */
-    default ResponseTransformer toJson() {
+    default JsonTransformer toJson() {
         return toJson;
     }
 
@@ -66,7 +52,7 @@ public interface JsonService extends RestfulService {
      * @param route json route
      */
     default void GET(String path, JsonRoute route) {
-        Spark.get(path, route, toJson());
+        Spark.get(path, (request, response) -> route, toJson());
     }
 
     /**
@@ -142,98 +128,19 @@ public interface JsonService extends RestfulService {
     }
 
     /**
-     * Read json node to POJO Bean
-     *
-     * @param node  json node
-     * @param clazz Class Type to return
-     * @param <T>   Return Class Type
-     * @return json body as @code{<T>}
-     * @throws JsonException json exception
+     * @param code status code
+     * @return JsonResult
      */
-    @Deprecated
-    default <T> T toObject(JsonNode node, Class<T> clazz) throws JsonException {
-        try {
-            return objectMapper.treeToValue(node, clazz);
-        } catch (JsonProcessingException e) {
-            throw new JsonException(e);
-        }
+    default JsonResult result(int code) {
+        return JsonResult.of(code);
     }
 
     /**
-     * @param object object
-     * @return json object write to json string
+     * @param code   status code
+     * @param object data object
+     * @return JsonResult
      */
-    @Deprecated
-    default JsonNode toTree(Object object) {
-        return objectMapper.valueToTree(object);
-    }
-
-    /**
-     * @return new object node for consumption
-     */
-    @Deprecated
-    default ObjectNode newNode() {
-        return objectMapper.createObjectNode();
-    }
-
-    /**
-     * @return new array node for consumption
-     */
-    @Deprecated
-    default ArrayNode newArrayNode() {
-        return objectMapper.createArrayNode();
-    }
-
-    /**
-     * @param meta meta node
-     * @return object node with meta only
-     */
-    default ObjectNode nodes(RestfulMeta meta) {
-        ObjectNode nodes = objectMapper.createObjectNode();
-        nodes.set("meta", objectMapper.valueToTree(meta));
-        return nodes;
-    }
-
-    /**
-     * @param meta meta node
-     * @param data data node
-     * @return object node with meta and data node
-     */
-    default ObjectNode nodes(RestfulMeta meta, JsonNode data) {
-        ObjectNode nodes = objectMapper.createObjectNode();
-        nodes.set("meta", objectMapper.valueToTree(meta));
-        nodes.set("data", data);
-        return nodes;
-    }
-
-    /**
-     * @param code code for meta node
-     * @param data data node
-     * @return object node with meta and data node
-     */
-    default ObjectNode nodes(int code, JsonNode data) {
-        ObjectNode nodes = objectMapper.createObjectNode();
-        nodes.putObject("meta").put("code", code);
-        nodes.set("data", data);
-        return nodes;
-    }
-
-    /**
-     * @param code code
-     * @return ObjectNode with meta
-     */
-    default ObjectNode nodes(int code) {
-        ObjectNode nodes = objectMapper.createObjectNode();
-        nodes.putObject("meta").put("code", code);
-        return nodes;
-    }
-
-    /**
-     * @param code   code for meta node
-     * @param object object
-     * @return object node with meta and data node
-     */
-    default ObjectNode nodes(int code, Object object) {
-        return nodes(code, objectMapper.valueToTree(object));
+    default JsonResult result(int code, Object object) {
+        return JsonResult.of(code, object);
     }
 }

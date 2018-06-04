@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import munch.restful.core.exception.ParamException;
 import munch.restful.server.JsonCall;
+import munch.restful.server.JsonResult;
 
 import javax.annotation.Nullable;
 
@@ -49,7 +50,7 @@ public abstract class RestfulDynamoHashRangeService<T> extends RestfulDynamoServ
      * @return JsonNode result to return
      * @see RestfulDynamoHashRangeService#list(JsonCall)
      */
-    protected JsonNode list(JsonCall call) {
+    protected JsonResult list(JsonCall call) {
         return list(table,
                 call.pathString(hashName),
                 call.queryString("next." + rangeName, null),
@@ -65,7 +66,7 @@ public abstract class RestfulDynamoHashRangeService<T> extends RestfulDynamoServ
      * @see QueryApi#query(QuerySpec)
      * @see QuerySpec#withRangeKeyCondition(RangeKeyCondition)
      */
-    protected JsonNode list(QueryApi queryApi, Object hash, @Nullable Object nextRange, int size) {
+    protected JsonResult list(QueryApi queryApi, Object hash, @Nullable Object nextRange, int size) {
         return list(queryApi, hashName, hash, rangeName, nextRange, size);
     }
 
@@ -98,7 +99,7 @@ public abstract class RestfulDynamoHashRangeService<T> extends RestfulDynamoServ
      * @return Object saved
      * @see RestfulDynamoHashRangeService#put(Object, Object, JsonNode)
      */
-    protected JsonNode put(JsonCall call) {
+    protected JsonResult put(JsonCall call) {
         return put(call.pathString(hashName), call.pathString(rangeName), call.bodyAsJson());
     }
 
@@ -108,7 +109,7 @@ public abstract class RestfulDynamoHashRangeService<T> extends RestfulDynamoServ
      * @param json  body
      * @return Object saved
      */
-    protected JsonNode put(Object hash, Object range, JsonNode json) {
+    protected JsonResult put(Object hash, Object range, JsonNode json) {
         ParamException.requireNonNull(hashName, hash);
         ParamException.requireNonNull(rangeName, range);
 
@@ -116,7 +117,7 @@ public abstract class RestfulDynamoHashRangeService<T> extends RestfulDynamoServ
         Item item = toItem(json, hash);
 
         table.putItem(item);
-        return Meta200;
+        return JsonResult.ok();
     }
 
     /**

@@ -1,10 +1,12 @@
 package munch.restful.server;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import munch.restful.core.JsonUtils;
 import munch.restful.core.RestfulMeta;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spark.ResponseTransformer;
 
 /**
@@ -14,6 +16,7 @@ import spark.ResponseTransformer;
  * Project: munch-core
  */
 public class JsonTransformer implements ResponseTransformer {
+    private static final Logger logger = LoggerFactory.getLogger(JsonTransformer.class);
     private static final ObjectMapper objectMapper = JsonService.objectMapper;
 
     static final JsonNode Meta200 =
@@ -26,34 +29,48 @@ public class JsonTransformer implements ResponseTransformer {
                     .set("meta", objectMapper.valueToTree(RestfulMeta.builder()
                             .code(404).build()));
 
-    public static final String Meta200String = toJson(Meta200);
-    public static final String Meta404String = toJson(Meta404);
+    public static final String Meta200String = JsonUtils.toString(Meta200);
+    public static final String Meta404String = JsonUtils.toString(Meta404);
 
-    @Override
-    public String render(Object model) {
-        // Check if JsonNode is any of the static helpers
-        if (model == null || model == Meta404) return Meta404String;
-        if (model == Meta200) return Meta200String;
+    public String render(JsonResult result) {
+        if (result.getMap() == null || result.getMap().isEmpty()) {
+            if (result.getCode() == 200) return Meta200String;
+            if (result.getCode() == 404) return Meta404String;
 
-        // Json node means already structured
-        if (model instanceof JsonNode) return toJson(model);
+            ObjectNode body = JsonUtils.createObjectNode();
+            body.putObject("meta").put("code", result.getCode());
+            return JsonUtils.toString(body);
+        }
 
-        // If not json node, wrap it into data node
-        ObjectNode nodes = objectMapper.createObjectNode();
-        nodes.set("meta", objectMapper.createObjectNode().put("code", 200));
-        nodes.set("data", objectMapper.valueToTree(model));
-        return toJson(nodes);
+        ObjectNode body = JsonUtils.createObjectNode();
+        body.putObject("meta").put("code", result.getCode());
+        result.getMap().forEach((key, value) -> {
+            body.set(key, toTree(value));
+        });
+
+        if (body.path("data").path("meta").has("code")) {
+            // Remove this check from Version 2.1.0 onwards
+            throw new IllegalArgumentException("data.meta.code, Version 2.0 RestfulApi Breaking Changes.");
+        }
+
+        return JsonUtils.toString(body);
     }
 
     /**
-     * @param object object
-     * @return object write to json string
+     * @param object to parse to JsonNode
+     * @return parsed JsonNode
      */
-    public static String toJson(Object object) {
-        try {
-            return objectMapper.writeValueAsString(object);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+    protected JsonNode toTree(Object object) {
+        return JsonUtils.toTree(object);
+    }
+
+    /**
+     * @see JsonResult
+     * @see JsonRoute
+     */
+    @Override
+    public String render(Object model) throws Exception {
+        // Force casted to JsonResult because technically it should only return JsonResult
+        return render((JsonResult) model);
     }
 }

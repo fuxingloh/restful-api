@@ -6,9 +6,10 @@ import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.amazonaws.services.dynamodbv2.model.ReturnValue;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import munch.restful.core.JsonUtils;
 import munch.restful.core.exception.ParamException;
 import munch.restful.server.JsonCall;
+import munch.restful.server.JsonResult;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -47,7 +48,7 @@ public abstract class RestfulDynamoHashService<T> extends RestfulDynamoService<T
      * @return JsonNode result
      * @see RestfulDynamoHashService#list(Object, int)
      */
-    protected JsonNode list(JsonCall call) {
+    protected JsonResult list(JsonCall call) {
         String hash = call.queryString("next." + hashName, null);
         int size = resolveSize(call.queryInt("size", 20));
         return list(hash, size);
@@ -60,7 +61,7 @@ public abstract class RestfulDynamoHashService<T> extends RestfulDynamoService<T
      * @see Table#query(QuerySpec)
      * @see QuerySpec#withExclusiveStartKey(KeyAttribute...)
      */
-    protected JsonNode list(Object nextHash, int size) {
+    protected JsonResult list(Object nextHash, int size) {
         ScanSpec scanSpec = new ScanSpec();
         scanSpec.withMaxPageSize(resolveSize(size));
 
@@ -73,15 +74,15 @@ public abstract class RestfulDynamoHashService<T> extends RestfulDynamoService<T
 
 
         List<T> dataList = items.stream().map(this::toData).collect(Collectors.toList());
-        ObjectNode node = nodes(200, dataList);
+        JsonResult result = result(200, dataList);
 
         // If no more next
-        if (items.size() != size) return node;
+        if (items.size() != size) return result;
 
         // Have next, send next object
-        ObjectNode next = node.putObject("next");
-        next.putPOJO(hashName, items.get(size - 1).get(hashName));
-        return node;
+        result.put("next", JsonUtils.createObjectNode()
+                .putPOJO(hashName, items.get(size - 1).get(hashName)));
+        return result;
     }
 
     /**
@@ -111,7 +112,7 @@ public abstract class RestfulDynamoHashService<T> extends RestfulDynamoService<T
      * @return Meta200 if successful
      * @see RestfulDynamoHashService#put(Object, JsonNode)
      */
-    protected JsonNode put(JsonCall call) {
+    protected JsonResult put(JsonCall call) {
         return put(call.pathString(hashName), call.bodyAsJson());
     }
 
@@ -120,12 +121,12 @@ public abstract class RestfulDynamoHashService<T> extends RestfulDynamoService<T
      * @param json body
      * @return Meta200 if successful
      */
-    protected JsonNode put(Object hash, JsonNode json) {
+    protected JsonResult put(Object hash, JsonNode json) {
         ParamException.requireNonNull(hashName, hash);
 
         Item item = toItem(json, hash);
         table.putItem(item);
-        return Meta200;
+        return result(200);
     }
 
     /**
