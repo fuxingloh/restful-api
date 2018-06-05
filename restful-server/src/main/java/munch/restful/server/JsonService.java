@@ -52,7 +52,7 @@ public interface JsonService extends RestfulService {
      * @param route json route
      */
     default void GET(String path, JsonRoute route) {
-        Spark.get(path, (request, response) -> route, toJson());
+        Spark.get(path, route, toJson());
     }
 
     /**

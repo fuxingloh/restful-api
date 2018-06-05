@@ -71,6 +71,7 @@ public class JsonTransformer implements ResponseTransformer {
     @Override
     public String render(Object model) throws Exception {
         // Force casted to JsonResult because technically it should only return JsonResult
+        // See JsonRoute
         return render((JsonResult) model);
     }
 }
