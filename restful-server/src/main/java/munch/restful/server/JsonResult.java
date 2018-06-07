@@ -41,7 +41,7 @@ public class JsonResult {
      * @return JsonResult with 200 status
      */
     public static JsonResult ok(Object data) {
-        return of(200).put("name", data);
+        return of(200).put("data", data);
     }
 
     /**
