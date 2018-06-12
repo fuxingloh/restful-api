@@ -41,7 +41,7 @@ public abstract class RestfulDynamoClient<T> extends RestfulClient {
      * @param size      per list
      * @return PagedList of Data or Empty
      */
-    protected NextNodeList<T> list(String path, String hashName, Object hash, String rangeName, @Nullable Object nextRange, int size) {
+    protected NextNodeList<T> doList(String path, String hashName, Object hash, String rangeName, @Nullable Object nextRange, int size) {
         RestfulRequest request = doGet(path);
         request.path(hashName, hash);
         request.queryString("size", size);
@@ -65,9 +65,9 @@ public abstract class RestfulDynamoClient<T> extends RestfulClient {
      * @param size      default size per list
      * @return Iterator of all Data with the same hash
      */
-    protected Iterator<T> list(String path, String hashName, Object hash, String rangeName, int size) {
-        return new Iterator<T>() {
-            NextNodeList<T> nextNodeList = list(path, hashName, hash, rangeName, null, size);
+    protected Iterator<T> doIterator(String path, String hashName, Object hash, String rangeName, int size) {
+        return new Iterator<>() {
+            NextNodeList<T> nextNodeList = doList(path, hashName, hash, rangeName, null, size);
             Iterator<T> iterator = nextNodeList.iterator();
 
             @Override
@@ -79,7 +79,7 @@ public abstract class RestfulDynamoClient<T> extends RestfulClient {
                     Object object = JsonUtils.toObject(rangeNode, Object.class);
 
                     // Query list again
-                    nextNodeList = list(path, hashName, hash, rangeName, object, size);
+                    nextNodeList = doList(path, hashName, hash, rangeName, object, size);
                     iterator = nextNodeList.iterator();
                     return iterator.hasNext();
                 }

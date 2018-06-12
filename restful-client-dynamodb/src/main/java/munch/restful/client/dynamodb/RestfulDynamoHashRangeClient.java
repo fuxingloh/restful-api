@@ -33,8 +33,8 @@ public class RestfulDynamoHashRangeClient<T> extends RestfulDynamoClient<T> {
      * @param size      per list
      * @return PagedList of Data or Empty
      */
-    protected NextNodeList<T> list(String path, Object hash, @Nullable Object nextRange, int size) {
-        return list(path, hashName, hash, rangeName, nextRange, size);
+    protected NextNodeList<T> doList(String path, Object hash, @Nullable Object nextRange, int size) {
+        return doList(path, hashName, hash, rangeName, nextRange, size);
     }
 
     /**
@@ -43,8 +43,8 @@ public class RestfulDynamoHashRangeClient<T> extends RestfulDynamoClient<T> {
      * @param size default size per list
      * @return Iterator of all Data with the same hash
      */
-    protected Iterator<T> list(String path, Object hash, int size) {
-        return list(path, hashName, hash, rangeName, size);
+    protected Iterator<T> doIterator(String path, Object hash, int size) {
+        return doIterator(path, hashName, hash, rangeName, size);
     }
 
     /**
@@ -54,7 +54,7 @@ public class RestfulDynamoHashRangeClient<T> extends RestfulDynamoClient<T> {
      * @return Object, Null = not found
      */
     @Nullable
-    protected T get(String path, Object hash, Object range) {
+    protected T doGet(String path, Object hash, Object range) {
         RestfulRequest request = doGet(path);
         request.path(hashName, hash);
         request.path(rangeName, range);
@@ -67,7 +67,7 @@ public class RestfulDynamoHashRangeClient<T> extends RestfulDynamoClient<T> {
      * @param range value
      * @param data  body value to put
      */
-    protected void put(String path, Object hash, Object range, T data) {
+    protected void doPut(String path, Object hash, Object range, T data) {
         RestfulRequest request = doPut(path);
         request.path(hashName, hash);
         request.path(rangeName, range);
@@ -81,7 +81,7 @@ public class RestfulDynamoHashRangeClient<T> extends RestfulDynamoClient<T> {
      * @return Object, Null = not found
      */
     @Nullable
-    protected T delete(String path, Object hash, Object range) {
+    protected T doDelete(String path, Object hash, Object range) {
         RestfulRequest request = doDelete(path);
         request.path(hashName, hash);
         request.path(rangeName, range);
