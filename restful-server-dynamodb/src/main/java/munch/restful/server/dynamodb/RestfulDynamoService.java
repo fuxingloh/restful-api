@@ -20,8 +20,8 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 /**
  * Created by: Fuxing
@@ -90,19 +90,19 @@ public abstract class RestfulDynamoService<T> implements JsonService {
             querySpec.withRangeKeyCondition(new RangeKeyCondition(rangeName).lt(nextRange));
         }
 
-        List<Item> items = new ArrayList<>();
-        queryApi.query(querySpec).forEach(items::add);
-
-
-        List<T> dataList = items.stream().map(this::toData).collect(Collectors.toList());
-        JsonResult result = result(200, dataList);
+        List<T> dataList = new ArrayList<>();
+        Item lastItem = null;
+        for (Item item : queryApi.query(querySpec)) {
+            lastItem = item;
+            dataList.add(toData(item));
+        }
 
         // If no more next
-        if (items.size() != size) return result;
+        JsonResult result = result(200, dataList);
+        if (lastItem == null || dataList.size() != size) return result;
 
         // Have next, send next object
-        result.put("next", JsonUtils.createObjectNode()
-                .putPOJO(rangeName, items.get(size - 1).get(rangeName)));
+        result.put("next", Map.of(rangeName, lastItem.get(rangeName)));
         return result;
     }
 

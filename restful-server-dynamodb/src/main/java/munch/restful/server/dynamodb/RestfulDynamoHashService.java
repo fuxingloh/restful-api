@@ -6,7 +6,6 @@ import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.amazonaws.services.dynamodbv2.model.ReturnValue;
 import com.fasterxml.jackson.databind.JsonNode;
-import munch.restful.core.JsonUtils;
 import munch.restful.core.exception.ParamException;
 import munch.restful.server.JsonCall;
 import munch.restful.server.JsonResult;
@@ -14,7 +13,7 @@ import munch.restful.server.JsonResult;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 /**
  * Created by: Fuxing
@@ -69,19 +68,19 @@ public abstract class RestfulDynamoHashService<T> extends RestfulDynamoService<T
             scanSpec.withExclusiveStartKey(hashName, nextHash);
         }
 
-        List<Item> items = new ArrayList<>();
-        table.scan(scanSpec).forEach(items::add);
-
-
-        List<T> dataList = items.stream().map(this::toData).collect(Collectors.toList());
-        JsonResult result = result(200, dataList);
+        List<T> dataList = new ArrayList<>();
+        Item lastItem = null;
+        for (Item item : table.scan(scanSpec)) {
+            lastItem = item;
+            dataList.add(toData(item));
+        }
 
         // If no more next
-        if (items.size() != size) return result;
+        JsonResult result = result(200, dataList);
+        if (lastItem == null || dataList.size() != size) return result;
 
         // Have next, send next object
-        result.put("next", JsonUtils.createObjectNode()
-                .putPOJO(hashName, items.get(size - 1).get(hashName)));
+        result.put("next", Map.of(hashName, lastItem.get(hashName)));
         return result;
     }
 
