@@ -49,11 +49,12 @@ public class RestfulDynamoHashClient<T> extends RestfulDynamoClient<T> {
 
     /**
      * @param path for querying via get request, e.g. /resources
+     * @param size for HashClient querying
      * @return Iterator of all Data
      */
-    protected Iterator<T> list(String path) {
+    protected Iterator<T> list(String path, int size) {
         return new Iterator<T>() {
-            NextNodeList<T> nextNodeList = list(path, null, 50);
+            NextNodeList<T> nextNodeList = list(path, null, size);
             Iterator<T> iterator = nextNodeList.iterator();
 
             @Override
@@ -65,7 +66,7 @@ public class RestfulDynamoHashClient<T> extends RestfulDynamoClient<T> {
 
                     // Query list again
                     Object nextHash = JsonUtils.toObject(nextNode.path(hashName), Object.class);
-                    nextNodeList = list(path, nextHash, 50);
+                    nextNodeList = list(path, nextHash, size);
                     iterator = nextNodeList.iterator();
                     return iterator.hasNext();
                 }
