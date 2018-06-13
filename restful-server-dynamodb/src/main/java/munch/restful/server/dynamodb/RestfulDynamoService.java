@@ -84,7 +84,7 @@ public abstract class RestfulDynamoService<T> implements JsonService {
         QuerySpec querySpec = new QuerySpec();
         querySpec.withScanIndexForward(false);
         querySpec.withHashKey(hashName, hash);
-        querySpec.withMaxPageSize(resolveSize(size));
+        querySpec.withMaxResultSize(resolveSize(size));
 
         if (nextRange != null) {
             querySpec.withRangeKeyCondition(new RangeKeyCondition(rangeName).lt(nextRange));

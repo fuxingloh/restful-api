@@ -62,7 +62,7 @@ public abstract class RestfulDynamoHashService<T> extends RestfulDynamoService<T
      */
     protected JsonResult list(Object nextHash, int size) {
         ScanSpec scanSpec = new ScanSpec();
-        scanSpec.withMaxPageSize(resolveSize(size));
+        scanSpec.withMaxResultSize(resolveSize(size));
 
         if (nextHash != null) {
             scanSpec.withExclusiveStartKey(hashName, nextHash);
