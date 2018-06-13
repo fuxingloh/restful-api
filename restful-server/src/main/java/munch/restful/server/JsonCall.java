@@ -155,6 +155,19 @@ public class JsonCall {
     }
 
     /**
+     *
+     * @param defaultSize default size if not present
+     * @param maxSize max size if present
+     * @return size value from query string
+     */
+    public int querySize(int defaultSize, int maxSize) {
+        int size = queryInt("size", defaultSize);
+        if (size <= 0) return defaultSize;
+        if (size >= maxSize) return maxSize;
+        return size;
+    }
+
+    /**
      * @param name name of query string
      * @return double value from query string
      * @throws ParamException query param not found
