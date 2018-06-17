@@ -98,6 +98,8 @@ public class RestfulServer {
 
         // Default handler for not found
         Spark.notFound((req, res) -> {
+            res.header("content-type", JsonRoute.APP_JSON);
+
             String path = req.pathInfo();
             return JsonUtils.toString(objectMapper.createObjectNode()
                     .set("meta", objectMapper.valueToTree(RestfulMeta.builder()
