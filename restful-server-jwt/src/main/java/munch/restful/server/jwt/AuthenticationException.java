@@ -11,10 +11,10 @@ import munch.restful.core.exception.StructuredException;
 public class AuthenticationException extends StructuredException {
 
     public AuthenticationException(String message) {
-        super(401, "AuthenticationException", message);
+        super(401, AuthenticationException.class, message);
     }
 
     public AuthenticationException(int code, String message) {
-        super(code, "AuthenticationException", message);
+        super(code, AuthenticationException.class, message);
     }
 }

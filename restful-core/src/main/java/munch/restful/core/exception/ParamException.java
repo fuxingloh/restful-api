@@ -9,6 +9,13 @@ import org.apache.commons.lang3.StringUtils;
  * Project: corpus-catalyst
  */
 public final class ParamException extends StructuredException {
+    static {
+        ExceptionParser.register(ParamException.class, ParamException::new);
+    }
+
+    private ParamException(StructuredException e) {
+        super(e);
+    }
 
     /**
      * Exception should be thrown for
@@ -20,7 +27,7 @@ public final class ParamException extends StructuredException {
      * @param param param that is not available
      */
     public ParamException(String param) {
-        super(400, "ParamException", "Parameter " + param + " is required but not processable.");
+        super(400, ParamException.class, "Parameter " + param + " is required but not processable.");
     }
 
     /**
@@ -33,7 +40,7 @@ public final class ParamException extends StructuredException {
      * @param params list of param that is not available
      */
     public ParamException(String... params) {
-        super(400, "ParamException", "Parameter " + String.join(", ", params) + " is required but not processable.");
+        super(400, ParamException.class, "Parameter " + String.join(", ", params) + " is required but not processable.");
     }
 
     /**

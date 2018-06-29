@@ -18,12 +18,20 @@ import java.util.stream.Collectors;
 public class ValidationException extends StructuredException {
     public static final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
+    static {
+        ExceptionParser.register(ValidationException.class, ValidationException::new);
+    }
+
+    ValidationException(StructuredException e) {
+        super(e);
+    }
+
     public ValidationException(String key, String reason) {
-        super(400, "ValidationException", "Validation failed on " + key + ", reason: " + reason + ".");
+        super(400, ValidationException.class, "Validation failed on " + key + ", reason: " + reason + ".");
     }
 
     private ValidationException(String reason) {
-        super(400, "ValidationException", reason);
+        super(400, ValidationException.class, reason);
     }
 
     /**

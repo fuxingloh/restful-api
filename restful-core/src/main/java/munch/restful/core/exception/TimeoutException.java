@@ -8,11 +8,20 @@ package munch.restful.core.exception;
  */
 public final class TimeoutException extends StructuredException {
 
+    static {
+        ExceptionParser.register(TimeoutException.class, TimeoutException::new);
+    }
+
+    TimeoutException(StructuredException e) {
+        super(e);
+    }
+
+
     public TimeoutException(Throwable throwable) {
-        super(408, "TimeoutException", "Request from client to server has timeout.", throwable);
+        super(408, TimeoutException.class, "Request from client to server has timeout.", throwable);
     }
 
     public TimeoutException(int code, Throwable throwable) {
-        super(code, "TimeoutException", "Request from client to server has timeout.", throwable);
+        super(code, TimeoutException.class, "Request from client to server has timeout.", throwable);
     }
 }

@@ -8,10 +8,7 @@ import com.mashape.unirest.http.Headers;
 import com.mashape.unirest.http.HttpResponse;
 import munch.restful.core.JsonUtils;
 import munch.restful.core.RestfulMeta;
-import munch.restful.core.exception.JsonException;
-import munch.restful.core.exception.StructuredException;
-import munch.restful.core.exception.TimeoutException;
-import munch.restful.core.exception.UnavailableException;
+import munch.restful.core.exception.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -189,6 +186,6 @@ public class RestfulResponse {
         String codeList = Arrays.stream(codes)
                 .mapToObj(Integer::toString)
                 .collect(Collectors.joining(", "));
-        throw new StructuredException(code, "CodeException", "Explicit validation on code(" + codeList + ") failed.");
+        throw new CodeException(code, "Explicit validation on code(" + codeList + ") failed.");
     }
 }

@@ -6,30 +6,21 @@ package munch.restful.core.exception;
  * Time: 7:04 PM
  * Project: munch-core
  */
-public class CodeException extends RuntimeException {
+public final class CodeException extends StructuredException {
 
-    private final int code;
-
-    /**
-     * This is another special type of exception
-     * Similar to StructuredException, it is caught to parse.
-     * However this is not a error exception it is a code meta exception
-     * Value of code will be set to meta.code and http status code
-     * <pre>
-     * {
-     *     meta: {
-     *         code: 200
-     *     }
-     * }
-     * </pre>
-     *
-     * @param code code
-     */
-    public CodeException(int code) {
-        this.code = code;
+    static {
+        ExceptionParser.register(CodeException.class, CodeException::new);
     }
 
-    public int getCode() {
-        return code;
+    public CodeException(StructuredException e) {
+        super(e);
+    }
+
+    public CodeException(int code) {
+        super(code, CodeException.class, null);
+    }
+
+    public CodeException(int code, String message) {
+        super(code, CodeException.class, message);
     }
 }

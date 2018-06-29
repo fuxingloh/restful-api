@@ -8,24 +8,32 @@ package munch.restful.core.exception;
  */
 public final class JsonException extends StructuredException {
 
+    static {
+        ExceptionParser.register(JsonException.class, JsonException::new);
+    }
+
+    JsonException(StructuredException e) {
+        super(e);
+    }
+
     /**
      * @param cause throwable for actual cause of json exception
      */
     public JsonException(Throwable cause, String url) {
-        super(400, "JsonException", cause.getMessage() + "\n" + url, cause);
+        super(400, JsonException.class, cause.getMessage() + "\n" + url, cause);
     }
 
     /**
      * @param cause throwable for actual cause of json exception
      */
     public JsonException(Throwable cause) {
-        super(400, "JsonException", cause.getMessage(), cause);
+        super(400, JsonException.class, cause.getMessage(), cause);
     }
 
     /**
      * @param message readable message
      */
     public JsonException(String message) {
-        super(400, "JsonException", message);
+        super(400, JsonException.class, message);
     }
 }

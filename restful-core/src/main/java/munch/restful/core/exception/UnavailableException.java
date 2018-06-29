@@ -8,7 +8,16 @@ package munch.restful.core.exception;
  */
 public class UnavailableException extends StructuredException {
 
+    static {
+        ExceptionParser.register(UnavailableException.class, UnavailableException::new);
+    }
+
+    UnavailableException(StructuredException e) {
+        super(e);
+    }
+
+
     public UnavailableException(Throwable throwable) {
-        super(503, "UnavailableException", "503 Service Temporarily Unavailable", throwable);
+        super(503, UnavailableException.class, "503 Service Temporarily Unavailable", throwable);
     }
 }

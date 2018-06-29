@@ -8,12 +8,21 @@ package munch.restful.core.exception;
  */
 public final class UnknownException extends StructuredException {
 
+    static {
+        ExceptionParser.register(UnknownException.class, UnknownException::new);
+    }
+
+    UnknownException(StructuredException e) {
+        super(e);
+    }
+
+
     /**
      * Map any throwable to Unknown Exception
      *
      * @param throwable throwable unknown error
      */
     public UnknownException(Throwable throwable) {
-        super(500, "UnknownException", throwable.getMessage(), throwable);
+        super(500, UnknownException.class, throwable.getMessage(), throwable);
     }
 }
