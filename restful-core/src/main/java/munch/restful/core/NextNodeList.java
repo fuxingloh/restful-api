@@ -1,4 +1,4 @@
-package munch.restful.client.dynamodb;
+package munch.restful.core;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;

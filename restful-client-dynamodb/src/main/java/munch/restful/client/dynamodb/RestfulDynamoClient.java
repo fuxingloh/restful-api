@@ -5,6 +5,7 @@ import munch.restful.client.RestfulClient;
 import munch.restful.client.RestfulRequest;
 import munch.restful.client.RestfulResponse;
 import munch.restful.core.JsonUtils;
+import munch.restful.core.NextNodeList;
 
 import javax.annotation.Nullable;
 import java.util.Iterator;
