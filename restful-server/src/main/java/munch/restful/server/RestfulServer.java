@@ -54,7 +54,7 @@ public class RestfulServer {
      * Start restful server with default port in the config = http.port
      * Port number can also be injected in the env as: HTTP_PORT
      *
-     * @see RestfulServer#start()
+     * @see RestfulServer#start(int)
      */
     public void start() {
         start(ConfigFactory.load().getInt("http.port"));
@@ -292,6 +292,34 @@ public class RestfulServer {
             }
         };
         server.start();
+        return server;
+    }
+
+
+    /**
+     * Easy way to start a service in a server with the prefix path and default port
+     * <p>
+     * Start restful server with default port in the config = http.port
+     * Port number can also be injected in the env as: HTTP_PORT
+     *
+     * @param port       to start service in
+     * @param prefixPath path prefix, e.g. version number
+     * @param service    single service to start
+     * @param services   any other services to start
+     * @return started RestfulServer
+     */
+    public static RestfulServer start(int port, String prefixPath, RestfulService service, RestfulService... services) {
+        List<RestfulService> serviceList = new ArrayList<>();
+        serviceList.add(service);
+        serviceList.addAll(Arrays.asList(services));
+
+        RestfulServer server = new RestfulServer(serviceList) {
+            @Override
+            protected void setupRouters() {
+                Spark.path(prefixPath, super::setupRouters);
+            }
+        };
+        server.start(port);
         return server;
     }
 }
