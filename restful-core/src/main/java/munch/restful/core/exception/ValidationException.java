@@ -1,11 +1,14 @@
 package munch.restful.core.exception;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.ConstraintViolation;
+import javax.validation.Path;
 import javax.validation.Validation;
 import javax.validation.Validator;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -17,6 +20,8 @@ import java.util.stream.Collectors;
  */
 public class ValidationException extends StructuredException {
     public static final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+
+    private List<String> reasons;
 
     static {
         ExceptionParser.register(ValidationException.class, ValidationException::new);
@@ -30,8 +35,19 @@ public class ValidationException extends StructuredException {
         super(400, ValidationException.class, "Validation failed on " + key + ", reason: " + reason + ".");
     }
 
+    @SuppressWarnings("unchecked")
+    private ValidationException(List<String> reasons) {
+        this(reasons.size() + " checks validation failed.\n" + reasons.stream().collect(Collectors.joining("\n")));
+        this.reasons = reasons;
+    }
+
     private ValidationException(String reason) {
         super(400, ValidationException.class, reason);
+    }
+
+    @JsonIgnore
+    public List<String> getReasons() {
+        return reasons;
     }
 
     /**
@@ -45,10 +61,15 @@ public class ValidationException extends StructuredException {
     public static <T> void validate(T object, Class<?>... groups) throws ValidationException {
         Set<ConstraintViolation<T>> violations = validator.validate(object, groups);
         if (violations.isEmpty()) return;
-        String messages = violations.stream()
-                .map(ConstraintViolation::getMessage)
-                .collect(Collectors.joining("\n"));
-        throw new ValidationException(messages);
+
+        List<String> reasons = violations.stream()
+                .map(violation -> {
+                    Path path = violation.getPropertyPath();
+                    String message = violation.getMessage();
+                    return path.toString() + ": " + message;
+                })
+                .collect(Collectors.toList());
+        throw new ValidationException(reasons);
 
     }
 
