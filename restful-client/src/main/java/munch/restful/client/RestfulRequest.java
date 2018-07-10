@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.HttpMethod;
 import com.mashape.unirest.request.HttpRequestWithBody;
 import com.mashape.unirest.request.body.MultipartBody;
+import munch.restful.core.exception.ExceptionParser;
 import munch.restful.core.exception.JsonException;
 import munch.restful.core.exception.StructuredException;
 import munch.restful.core.exception.UnknownException;
@@ -252,13 +253,7 @@ public class RestfulRequest {
         try {
             return new RestfulResponse(this, request.asString(), handler);
         } catch (Exception e) {
-            // If is structured error just throw
-            if (e instanceof StructuredException) {
-                throw (StructuredException) e;
-            }
-
-            // Try parse error
-            munch.restful.core.exception.ExceptionParser.parse(e);
+            ExceptionParser.parse(e);
             throw new UnknownException(e);
         }
     }
