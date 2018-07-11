@@ -4,8 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.HttpMethod;
 import munch.restful.core.JsonUtils;
 
-import java.util.regex.Pattern;
-
 /**
  * Created By: Fuxing Loh
  * Date: 18/3/2017
@@ -14,7 +12,6 @@ import java.util.regex.Pattern;
  */
 public abstract class RestfulClient {
     protected static final ObjectMapper objectMapper = JsonUtils.objectMapper;
-    private static final Pattern PATH_PATTERN = Pattern.compile("/:(\\w+)");
 
     protected final String url;
 
@@ -30,10 +27,6 @@ public abstract class RestfulClient {
      * @return full path
      */
     private String path(String path) {
-        path = PATH_PATTERN.matcher(path).replaceAll(matchResult -> {
-            String group = matchResult.group(1);
-            return "/{" + group + "}";
-        });
         return url + path;
     }
 

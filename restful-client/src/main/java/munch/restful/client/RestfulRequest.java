@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
 
 /**
  * Created By: Fuxing Loh
@@ -29,6 +30,7 @@ import java.util.function.Supplier;
  */
 public class RestfulRequest {
     protected static final ObjectMapper objectMapper = RestfulClient.objectMapper;
+    private static final Pattern PATH_PATTERN = Pattern.compile("/:(\\w+)");
 
     protected final HttpRequestWithBody request;
     protected MultipartBody multipartBody;
@@ -40,6 +42,11 @@ public class RestfulRequest {
      * @param url    base url without /
      */
     public RestfulRequest(HttpMethod method, String url) {
+        // converts /:name to /{name}
+        url = PATH_PATTERN.matcher(url).replaceAll(matchResult -> {
+            String group = matchResult.group(1);
+            return "/{" + group + "}";
+        });
         this.request = new HttpRequestWithBody(method, url);
     }
 
