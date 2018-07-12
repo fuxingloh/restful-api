@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.HttpMethod;
 import com.mashape.unirest.request.HttpRequestWithBody;
 import com.mashape.unirest.request.body.MultipartBody;
+import munch.restful.core.NextNodeList;
 import munch.restful.core.exception.ExceptionParser;
 import munch.restful.core.exception.JsonException;
 import munch.restful.core.exception.StructuredException;
@@ -212,6 +213,15 @@ public class RestfulRequest {
      */
     public <T> List<T> asDataList(Class<T> clazz) {
         return asResponse().asDataList(clazz);
+    }
+
+    /**
+     * @param clazz class of array type
+     * @param <T>   Type
+     * @return Next node list of given type
+     */
+    public <T> NextNodeList<T> asNextNodeList(Class<T> clazz) {
+        return asResponse().asNextNodeList(clazz);
     }
 
     /**

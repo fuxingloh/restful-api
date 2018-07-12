@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.Headers;
 import com.mashape.unirest.http.HttpResponse;
 import munch.restful.core.JsonUtils;
+import munch.restful.core.NextNodeList;
 import munch.restful.core.RestfulMeta;
 import munch.restful.core.exception.*;
 
@@ -150,6 +151,16 @@ public class RestfulResponse {
      */
     public <T> List<T> asDataList(Class<T> clazz) {
         return JsonUtils.toList(getDataNode(), clazz);
+    }
+
+    /**
+     * @param clazz class of array type
+     * @param <T>   Type
+     * @return Next node list of given type
+     */
+    public <T> NextNodeList<T> asNextNodeList(Class<T> clazz) {
+        List<T> list = JsonUtils.toList(getDataNode(), clazz);
+        return new NextNodeList<>(list, getNode().path("next"));
     }
 
     /**
