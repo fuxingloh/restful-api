@@ -59,6 +59,7 @@ public final class JsonUtils {
     }
 
     public static <T> T toObject(JsonNode node, Class<T> clazz) {
+        if (node == null) return null;
         try {
             return objectMapper.treeToValue(node, clazz);
         } catch (IOException e) {
@@ -67,6 +68,7 @@ public final class JsonUtils {
     }
 
     public static <T> T toObject(String value, Class<T> clazz) {
+        if (value == null) return null;
         try {
             return objectMapper.readValue(value, clazz);
         } catch (IOException e) {
