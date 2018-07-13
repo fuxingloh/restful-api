@@ -4,9 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.URI;
+import java.net.*;
 import java.time.Duration;
 
 /**
@@ -17,6 +15,15 @@ import java.time.Duration;
  */
 public final class WaitFor {
     private static final Logger logger = LoggerFactory.getLogger(WaitFor.class);
+
+    public static void statusOk(String url, Duration timeout) {
+        logger.info("Waiting for {} with timeout duration of {}", url, timeout);
+        try {
+            code(url, 200, (int) timeout.toMillis());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     /**
      * Wait for host until given timeout
@@ -67,6 +74,26 @@ public final class WaitFor {
             } catch (IOException ignored) {
             }
             Thread.sleep(1000);
+        }
+        return false;
+    }
+
+    private static boolean code(String urlSting, int code, int timeout) {
+        long startMillis = System.currentTimeMillis();
+        while (System.currentTimeMillis() < startMillis + timeout) {
+            try {
+                URL url = new URL(urlSting);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setReadTimeout(timeout);
+                connection.setConnectTimeout(timeout);
+                connection.setRequestMethod("GET");
+                connection.connect();
+
+                if (connection.getResponseCode() == code) return true;
+                Thread.sleep(1000);
+            } catch (Exception ignored) {
+
+            }
         }
         return false;
     }
