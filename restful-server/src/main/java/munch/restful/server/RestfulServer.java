@@ -282,12 +282,11 @@ public class RestfulServer {
      * Start restful server with default port in the config = http.port
      * Port number can also be injected in the env as: HTTP_PORT
      *
-     * @param service  single service to start
-     * @param services any other services to start
+     * @param services to start
      * @return started RestfulServer
      */
-    public static RestfulServer start(RestfulService service, RestfulService... services) {
-        return start("", service, services);
+    public static RestfulServer start(RestfulService... services) {
+        return start("", services);
     }
 
     /**
@@ -297,16 +296,11 @@ public class RestfulServer {
      * Port number can also be injected in the env as: HTTP_PORT
      *
      * @param prefixPath path prefix, e.g. version number
-     * @param service    single service to start
-     * @param services   any other services to start
+     * @param services   to start
      * @return started RestfulServer
      */
-    public static RestfulServer start(String prefixPath, RestfulService service, RestfulService... services) {
-        List<RestfulService> serviceList = new ArrayList<>();
-        serviceList.add(service);
-        serviceList.addAll(Arrays.asList(services));
-
-        RestfulServer server = new RestfulServer(serviceList) {
+    public static RestfulServer start(String prefixPath, RestfulService... services) {
+        RestfulServer server = new RestfulServer(services) {
             @Override
             protected void setupRouters() {
                 Spark.path(prefixPath, super::setupRouters);
@@ -325,16 +319,11 @@ public class RestfulServer {
      *
      * @param port       to start service in
      * @param prefixPath path prefix, e.g. version number
-     * @param service    single service to start
-     * @param services   any other services to start
+     * @param services   to start
      * @return started RestfulServer
      */
-    public static RestfulServer start(int port, String prefixPath, RestfulService service, RestfulService... services) {
-        List<RestfulService> serviceList = new ArrayList<>();
-        serviceList.add(service);
-        serviceList.addAll(Arrays.asList(services));
-
-        RestfulServer server = new RestfulServer(serviceList) {
+    public static RestfulServer start(int port, String prefixPath, RestfulService... services) {
+        RestfulServer server = new RestfulServer(services) {
             @Override
             protected void setupRouters() {
                 Spark.path(prefixPath, super::setupRouters);
