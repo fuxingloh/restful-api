@@ -3,8 +3,7 @@ package munch.restful.core.exception;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.net.SocketTimeoutException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -15,14 +14,15 @@ import java.util.function.Function;
  * Project: munch-core
  */
 public final class ExceptionParser {
-    private static final Map<String, Consumer<StructuredException>> mapper = new HashMap<>();
+    private static final Map<String, Consumer<StructuredException>> FOUND_CONSUMERS = new HashMap<>();
+    private static final Set<String> NOT_FOUND_LIST = new HashSet<>();
 
     /**
-     * @param type     to resolve
+     * @param name     to resolve
      * @param consumer to apply Exception
      */
-    public static void consume(String type, Consumer<StructuredException> consumer) {
-        mapper.put(type, consumer);
+    private static void consume(String name, Consumer<StructuredException> consumer) {
+        FOUND_CONSUMERS.put(name, consumer);
     }
 
     /**
@@ -34,7 +34,7 @@ public final class ExceptionParser {
      * @param <T>      Exception Class Type
      */
     public static <T extends StructuredException> void register(Class<T> tClass, Function<StructuredException, T> function) {
-        consume(tClass.getSimpleName(), e -> {
+        consume(tClass.getName(), e -> {
             throw function.apply(e);
         });
     }
@@ -54,8 +54,18 @@ public final class ExceptionParser {
      * @throws StructuredException thrown
      */
     private static void parseStructured(StructuredException e) throws StructuredException {
-        mapper.get(e.getType()).accept(e);
+        Consumer<StructuredException> consumer = FOUND_CONSUMERS.get(e.getType());
+        if (consumer == null && !NOT_FOUND_LIST.contains(e.getType())) {
+            try {
+                Class.forName(e.getType());
+                consumer = FOUND_CONSUMERS.get(e.getType());
+            } catch (ClassNotFoundException e1) {
+                NOT_FOUND_LIST.add(e.getType());
+            }
+        }
 
+        // Try again
+        if (consumer != null) consumer.accept(e);
         throw e;
     }
 

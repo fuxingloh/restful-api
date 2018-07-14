@@ -33,8 +33,9 @@ public class StructuredException extends RuntimeException {
      * @param clazz   class to register to
      * @param message error message in detail
      */
+    @SuppressWarnings("deprecation")
     public StructuredException(int code, Class<? extends StructuredException> clazz, String message) {
-        this(code, clazz.getSimpleName(), message);
+        this(code, clazz.getName(), message);
     }
 
     /**
@@ -43,8 +44,9 @@ public class StructuredException extends RuntimeException {
      * @param message   error message in detail
      * @param throwable error stacktrace
      */
+    @SuppressWarnings("deprecation")
     public StructuredException(int code, Class<? extends StructuredException> clazz, String message, Throwable throwable) {
-        this(code, clazz.getSimpleName(), message, throwable);
+        this(code, clazz.getName(), message, throwable);
     }
 
     /**
@@ -52,6 +54,7 @@ public class StructuredException extends RuntimeException {
      * @param type    error type name
      * @param message error message
      */
+    @Deprecated
     public StructuredException(int code, String type, String message) {
         this(code, type, message, (String) null);
     }
@@ -62,6 +65,7 @@ public class StructuredException extends RuntimeException {
      * @param message   error message
      * @param throwable error stacktrace
      */
+    @Deprecated
     public StructuredException(int code, String type, String message, Throwable throwable) {
         super(message, throwable);
         this.code = code;
