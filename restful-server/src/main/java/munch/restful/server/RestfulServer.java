@@ -17,7 +17,11 @@ import spark.Response;
 import spark.Spark;
 
 import java.net.SocketTimeoutException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.function.Function;
 
 /**
  * Created by: Fuxing
@@ -238,21 +242,38 @@ public class RestfulServer {
     }
 
     /**
-     * @param path for the health check
-     * @return RestfulServer
-     */
-    public RestfulServer withHealth(String path) {
-        Spark.get(path, (req, res) -> JsonTransformer.Meta200String);
-        return this;
-    }
-
-    /**
      * Using default /health/check as path
      *
      * @return RestfulServer
      */
     public RestfulServer withHealth() {
         return withHealth(DEFAULT_HEALTH_PATH);
+    }
+
+    /**
+     * @param check function to reply with
+     * @return RestfulServer
+     */
+    public RestfulServer withHealth(Function<JsonCall, String> check) {
+        return withHealth(DEFAULT_HEALTH_PATH, check);
+    }
+
+    /**
+     * @param path for the health check
+     * @return RestfulServer
+     */
+    public RestfulServer withHealth(String path) {
+        return withHealth(path, call -> JsonTransformer.Meta200String);
+    }
+
+    /**
+     * @param path  for the health check
+     * @param check function to reply with
+     * @return RestfulServer
+     */
+    public RestfulServer withHealth(String path, Function<JsonCall, String> check) {
+        Spark.get(path, (req, res) -> check.apply(new JsonCall(req, res)));
+        return this;
     }
 
     /**
