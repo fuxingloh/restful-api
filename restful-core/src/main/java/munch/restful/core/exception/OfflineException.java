@@ -9,7 +9,7 @@ package munch.restful.core.exception;
 public final class OfflineException extends StructuredException {
 
     static {
-        ExceptionParser.register(OfflineException.class, OfflineException::new);
+        ExceptionParser.registerRoot(OfflineException.class, OfflineException::new);
     }
 
     OfflineException(StructuredException e) {

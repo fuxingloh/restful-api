@@ -9,7 +9,7 @@ package munch.restful.core.exception;
 public final class TimeoutException extends StructuredException {
 
     static {
-        ExceptionParser.register(TimeoutException.class, TimeoutException::new);
+        ExceptionParser.registerRoot(TimeoutException.class, TimeoutException::new);
     }
 
     TimeoutException(StructuredException e) {

@@ -15,7 +15,6 @@ import java.util.List;
  * Project: munch-core
  */
 public class StructuredException extends RuntimeException {
-
     private final int code;
     private final String type;
     private final String message;

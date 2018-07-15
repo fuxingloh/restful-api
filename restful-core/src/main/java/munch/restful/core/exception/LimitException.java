@@ -8,7 +8,7 @@ package munch.restful.core.exception;
  */
 public final class LimitException extends StructuredException {
     static {
-        ExceptionParser.register(LimitException.class, LimitException::new);
+        ExceptionParser.registerRoot(LimitException.class, LimitException::new);
     }
 
     private LimitException(StructuredException e) {

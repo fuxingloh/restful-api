@@ -24,7 +24,7 @@ public class ValidationException extends StructuredException {
     private List<String> reasons;
 
     static {
-        ExceptionParser.register(ValidationException.class, ValidationException::new);
+        ExceptionParser.registerRoot(ValidationException.class, ValidationException::new);
     }
 
     ValidationException(StructuredException e) {

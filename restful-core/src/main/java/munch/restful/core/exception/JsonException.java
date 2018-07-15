@@ -9,7 +9,7 @@ package munch.restful.core.exception;
 public final class JsonException extends StructuredException {
 
     static {
-        ExceptionParser.register(JsonException.class, JsonException::new);
+        ExceptionParser.registerRoot(JsonException.class, JsonException::new);
     }
 
     JsonException(StructuredException e) {

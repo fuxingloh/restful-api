@@ -14,6 +14,28 @@ import java.util.function.Function;
  * Project: munch-core
  */
 public final class ExceptionParser {
+    private static final List<Class<? extends StructuredException>> ROOT_LEVEL_EXCEPTION_CLASSES = List.of(
+            CodeException.class,
+            JsonException.class,
+            LimitException.class,
+            OfflineException.class,
+            TimeoutException.class,
+            UnavailableException.class,
+            UnknownException.class,
+            ValidationException.class
+    );
+
+    static {
+        // Root Level Exception is Automatically Registered
+        try {
+            for (Class<?> clazz : ROOT_LEVEL_EXCEPTION_CLASSES) {
+                Class.forName(clazz.getName());
+            }
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private static final Map<String, Consumer<StructuredException>> FOUND_CONSUMERS = new HashMap<>();
     private static final Set<String> NOT_FOUND_LIST = new HashSet<>();
 
@@ -23,6 +45,13 @@ public final class ExceptionParser {
      */
     private static void consume(String name, Consumer<StructuredException> consumer) {
         FOUND_CONSUMERS.put(name, consumer);
+    }
+
+    static <T extends StructuredException> void registerRoot(Class<T> tClass, Function<StructuredException, T> function) {
+        consume(tClass.getSimpleName(), e -> {
+            throw function.apply(e);
+        });
+        register(tClass, function);
     }
 
     /**

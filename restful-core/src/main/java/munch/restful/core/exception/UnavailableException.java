@@ -6,10 +6,10 @@ package munch.restful.core.exception;
  * Time: 8:13 AM
  * Project: restful-api
  */
-public class UnavailableException extends StructuredException {
+public final class UnavailableException extends StructuredException {
 
     static {
-        ExceptionParser.register(UnavailableException.class, UnavailableException::new);
+        ExceptionParser.registerRoot(UnavailableException.class, UnavailableException::new);
     }
 
     UnavailableException(StructuredException e) {

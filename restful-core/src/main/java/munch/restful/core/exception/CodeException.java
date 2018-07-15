@@ -9,7 +9,7 @@ package munch.restful.core.exception;
 public final class CodeException extends StructuredException {
 
     static {
-        ExceptionParser.register(CodeException.class, CodeException::new);
+        ExceptionParser.registerRoot(CodeException.class, CodeException::new);
     }
 
     public CodeException(StructuredException e) {

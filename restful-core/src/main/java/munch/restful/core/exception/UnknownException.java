@@ -9,7 +9,7 @@ package munch.restful.core.exception;
 public final class UnknownException extends StructuredException {
 
     static {
-        ExceptionParser.register(UnknownException.class, UnknownException::new);
+        ExceptionParser.registerRoot(UnknownException.class, UnknownException::new);
     }
 
     UnknownException(StructuredException e) {
