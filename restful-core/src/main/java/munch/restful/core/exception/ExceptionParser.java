@@ -14,30 +14,26 @@ import java.util.function.Function;
  * Project: munch-core
  */
 public final class ExceptionParser {
-    private static final List<Class<? extends StructuredException>> ROOT_LEVEL_EXCEPTION_CLASSES = List.of(
-            CodeException.class,
-            JsonException.class,
-            LimitException.class,
-            OfflineException.class,
-            TimeoutException.class,
-            UnavailableException.class,
-            UnknownException.class,
-            ValidationException.class
-    );
 
+    private static final Map<String, Consumer<StructuredException>> FOUND_CONSUMERS = new HashMap<>();
+    private static final Set<String> NOT_FOUND_LIST = new HashSet<>();
+
+    // Root Level Exception is Automatically Registered
     static {
-        // Root Level Exception is Automatically Registered
         try {
-            for (Class<?> clazz : ROOT_LEVEL_EXCEPTION_CLASSES) {
-                Class.forName(clazz.getName());
-            }
+            Class.forName(ValidationException.class.getName());
+            Class.forName(CodeException.class.getName());
+            Class.forName(JsonException.class.getName());
+            Class.forName(LimitException.class.getName());
+            Class.forName(OfflineException.class.getName());
+            Class.forName(TimeoutException.class.getName());
+            Class.forName(UnavailableException.class.getName());
+            Class.forName(UnknownException.class.getName());
+            Class.forName(ValidationException.class.getName());
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
-
-    private static final Map<String, Consumer<StructuredException>> FOUND_CONSUMERS = new HashMap<>();
-    private static final Set<String> NOT_FOUND_LIST = new HashSet<>();
 
     /**
      * @param name     to resolve
@@ -51,7 +47,9 @@ public final class ExceptionParser {
         consume(tClass.getSimpleName(), e -> {
             throw function.apply(e);
         });
-        register(tClass, function);
+        consume(tClass.getName(), e -> {
+            throw function.apply(e);
+        });
     }
 
     /**
