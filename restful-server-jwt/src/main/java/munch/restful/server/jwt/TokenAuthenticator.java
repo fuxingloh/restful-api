@@ -1,6 +1,7 @@
 package munch.restful.server.jwt;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
+import munch.restful.core.exception.AuthenticationException;
 import munch.restful.server.JsonCall;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -3,7 +3,7 @@ package munch.restful.server.firebase;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
-import munch.restful.server.jwt.AuthenticationException;
+import munch.restful.core.exception.AuthenticationException;
 import munch.restful.server.jwt.TokenAuthenticator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

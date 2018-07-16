@@ -1,6 +1,4 @@
-package munch.restful.server.jwt;
-
-import munch.restful.core.exception.StructuredException;
+package munch.restful.core.exception;
 
 /**
  * Created by: Fuxing
@@ -8,7 +6,15 @@ import munch.restful.core.exception.StructuredException;
  * Time: 1:48 AM
  * Project: restful-api
  */
-public class AuthenticationException extends StructuredException {
+public final class AuthenticationException extends StructuredException {
+
+    static {
+        ExceptionParser.registerRoot(AuthenticationException.class, AuthenticationException::new);
+    }
+
+    private AuthenticationException(StructuredException e) {
+        super(e);
+    }
 
     public AuthenticationException(String message) {
         super(401, AuthenticationException.class, message);

@@ -7,7 +7,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import munch.restful.server.jwt.AuthenticatedToken;
-import munch.restful.server.jwt.AuthenticationException;
+import munch.restful.core.exception.AuthenticationException;
 import munch.restful.server.jwt.TokenAuthenticator;
 
 import java.security.interfaces.RSAPublicKey;
