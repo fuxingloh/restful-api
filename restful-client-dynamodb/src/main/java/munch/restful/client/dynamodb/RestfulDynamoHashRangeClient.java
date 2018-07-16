@@ -73,6 +73,7 @@ public class RestfulDynamoHashRangeClient<T> extends RestfulDynamoClient<T> {
         request.path(hashName, hash);
         request.path(rangeName, range);
         request.body(data);
+        request.hasCode(200);
     }
 
     /**

@@ -102,7 +102,7 @@ public class RestfulDynamoHashClient<T> extends RestfulDynamoClient<T> {
         RestfulRequest request = doPut(path);
         request.path(hashName, hash);
         request.body(data);
-        request.asResponse();
+        request.hasCode(200);
     }
 
     /**
