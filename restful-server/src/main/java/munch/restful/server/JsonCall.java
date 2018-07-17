@@ -217,7 +217,7 @@ public class JsonCall {
      * @throws ParamException query param not found
      */
     public boolean queryBool(String name, boolean defaultValue) throws ParamException {
-        String value = queryString(name);
+        String value = request.queryParams(name);
         if (StringUtils.isBlank(value)) return defaultValue;
         return Boolean.parseBoolean(value);
     }
