@@ -66,6 +66,17 @@ public class JsonCall {
     }
 
     /**
+     * @param nonNull validate if body is non null
+     * @return request body as JsonNode
+     * @throws JsonException json exception
+     */
+    public JsonNode bodyAsJson(boolean nonNull) {
+        JsonNode json = bodyAsJson();
+        if (nonNull && json == null) throw new ParamException("body");
+        return json;
+    }
+
+    /**
      * @return request body as json object
      */
     public <T> T bodyAsObject(Class<T> clazz) {
@@ -155,9 +166,8 @@ public class JsonCall {
     }
 
     /**
-     *
      * @param defaultSize default size if not present
-     * @param maxSize max size if present
+     * @param maxSize     max size if present
      * @return size value from query string
      */
     public int querySize(int defaultSize, int maxSize) {

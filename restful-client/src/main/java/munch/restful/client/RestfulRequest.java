@@ -7,10 +7,7 @@ import com.mashape.unirest.http.HttpMethod;
 import com.mashape.unirest.request.HttpRequestWithBody;
 import com.mashape.unirest.request.body.MultipartBody;
 import munch.restful.core.NextNodeList;
-import munch.restful.core.exception.ExceptionParser;
-import munch.restful.core.exception.JsonException;
-import munch.restful.core.exception.StructuredException;
-import munch.restful.core.exception.UnknownException;
+import munch.restful.core.exception.*;
 import org.apache.http.entity.ContentType;
 
 import java.io.File;
