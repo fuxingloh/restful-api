@@ -1,6 +1,7 @@
 package munch.restful.core;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.RandomUtils;
 
 import java.nio.ByteBuffer;
 import java.util.Base64;
@@ -23,6 +24,25 @@ public final class KeyUtils {
     public static String randomUUID() {
         UUID uuid = UUID.randomUUID();
         return uuid.toString();
+    }
+
+    /**
+     * @return MostSignificantBits = System.currentTimeMillis(), LeastSignificantBits = randomLong()
+     */
+    public static String randomMillisUUID() {
+        return createUUID(System.currentTimeMillis(), RandomUtils.nextLong());
+    }
+
+    /**
+     * @param left  MostSignificantBits
+     * @param right LeastSignificantBits
+     * @return UUID
+     */
+    public static String createUUID(long left, long right) {
+        ByteBuffer uuidBytes = ByteBuffer.wrap(new byte[16]);
+        uuidBytes.putLong(left);
+        uuidBytes.putLong(right);
+        return UUID.nameUUIDFromBytes(uuidBytes.array()).toString();
     }
 
     /**
