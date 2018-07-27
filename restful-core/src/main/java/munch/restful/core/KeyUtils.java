@@ -39,10 +39,7 @@ public final class KeyUtils {
      * @return UUID
      */
     public static String createUUID(long left, long right) {
-        ByteBuffer uuidBytes = ByteBuffer.wrap(new byte[16]);
-        uuidBytes.putLong(left);
-        uuidBytes.putLong(right);
-        return UUID.nameUUIDFromBytes(uuidBytes.array()).toString();
+        return new UUID(left, right).toString();
     }
 
     /**
