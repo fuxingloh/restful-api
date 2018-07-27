@@ -74,4 +74,12 @@ public class JsonResult {
     public static JsonResult ok() {
         return of(200);
     }
+
+    @Override
+    public String toString() {
+        return "JsonResult{" +
+                "code=" + code +
+                ", map=" + map +
+                '}';
+    }
 }
