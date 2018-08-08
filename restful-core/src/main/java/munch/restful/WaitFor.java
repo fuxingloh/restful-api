@@ -54,12 +54,19 @@ public final class WaitFor {
         logger.info("Waiting for {} with timeout duration of {}", url, timeout);
         try {
             URI uri = new URI(url);
-            if (!ping(uri.getHost(), uri.getPort(), (int) timeout.toMillis())) {
+            if (!ping(uri.getHost(), resolvePort(uri), (int) timeout.toMillis())) {
                 throw new RuntimeException(url + " is unreachable.");
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static int resolvePort(URI uri) {
+        if (uri.getPort() != -1) return uri.getPort();
+        if (uri.getScheme().startsWith("https")) return 443;
+        if (uri.getScheme().startsWith("http")) return 80;
+        return -1;
     }
 
     /**
