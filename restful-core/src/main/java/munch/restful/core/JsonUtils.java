@@ -20,16 +20,41 @@ import java.util.function.Function;
  * Project: munch-core
  */
 public final class JsonUtils {
+    /**
+     * Singleton ObjectMapper for all restful-api tools to use
+     */
     public static final ObjectMapper objectMapper = new ObjectMapper();
 
+    /**
+     * Exactly the same as
+     * <pre>
+     *     ObjectMapper mapper = new ObjectMapper();
+     *     ObjectNode objectNode = mapper.createObjectNode();
+     * </pre>
+     *
+     * @return newly created ObjectNode
+     */
     public static ObjectNode createObjectNode() {
         return objectMapper.createObjectNode();
     }
 
+    /**
+     * Exactly the same as
+     * <pre>
+     *     ObjectMapper mapper = new ObjectMapper();
+     *     ArrayNode arrayNode = mapper.createArrayNode();
+     * </pre>
+     *
+     * @return newly created ArrayNode
+     */
     public static ArrayNode createArrayNode() {
         return objectMapper.createArrayNode();
     }
 
+    /**
+     * @param object JsonNode or POJO
+     * @return JSON String
+     */
     public static String toString(Object object) {
         try {
             return objectMapper.writeValueAsString(object);
@@ -38,6 +63,12 @@ public final class JsonUtils {
         }
     }
 
+    /**
+     * Read json string into JsonNode
+     *
+     * @param json JSON String
+     * @return JsonNode
+     */
     public static JsonNode readTree(String json) {
         try {
             return objectMapper.readTree(json);
@@ -46,6 +77,11 @@ public final class JsonUtils {
         }
     }
 
+    /**
+     * @param object POJO into JsonNode
+     * @param <T>    Node Type
+     * @return JsonNode
+     */
     public static <T extends JsonNode> T toTree(Object object) {
         return objectMapper.valueToTree(object);
     }

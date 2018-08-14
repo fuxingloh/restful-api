@@ -34,12 +34,52 @@ public final class KeyUtils {
     }
 
     /**
+     * 64bit Long x 2
+     *
      * @param left  MostSignificantBits
      * @param right LeastSignificantBits
      * @return UUID
      */
     public static String createUUID(long left, long right) {
         return new UUID(left, right).toString();
+    }
+
+    /**
+     * 32bit Integer x 4
+     *
+     * @param i1 integer 1
+     * @param i2 integer 2
+     * @param i3 integer 3
+     * @param i4 integer 4
+     * @return 128 bit UUID
+     */
+    public static String createUUID(int i1, int i2, int i3, int i4) {
+        ByteBuffer buffer = ByteBuffer.allocate(16)
+                .putInt(i1)
+                .putInt(i2)
+                .putInt(i3)
+                .putInt(i4);
+
+        buffer.position(0);
+
+        long left = buffer.getLong();
+        long right = buffer.getLong();
+        return createUUID(left, right);
+    }
+
+    /**
+     * @param bytes 16 length
+     * @return 128 bit UUID
+     */
+    public static String createUUID(byte[] bytes) {
+        if (bytes.length != 16) throw new IllegalArgumentException("bytes.length must be 16");
+
+        ByteBuffer buffer = ByteBuffer.wrap(bytes);
+        buffer.position(0);
+
+        long left = buffer.getLong();
+        long right = buffer.getLong();
+        return createUUID(left, right);
     }
 
     /**
