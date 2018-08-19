@@ -178,6 +178,9 @@ public abstract class RestfulDynamoService<T> implements JsonService {
      * @return Updated Date or Null if don't exist
      */
     protected T patch(JsonNode body, PrimaryKey primaryKey, Consumer<UpdateItemSpec> specConsumer, String... fieldNames) {
+        // Validate Item exists first
+        if (table.getItem(primaryKey) == null) return null;
+
         JsonNode node = JsonUtils.validate(body, clazz);
 
         List<AttributeUpdate> updates = new ArrayList<>();
@@ -197,7 +200,6 @@ public abstract class RestfulDynamoService<T> implements JsonService {
         UpdateItemSpec spec = new UpdateItemSpec();
         spec.withPrimaryKey(primaryKey);
         spec.withReturnValues(ReturnValue.ALL_NEW);
-        spec.withConditionExpression("attribute_exists(" + hashName + ")");
         spec.withAttributeUpdate(updates);
 
         // Spec consumer to edit
