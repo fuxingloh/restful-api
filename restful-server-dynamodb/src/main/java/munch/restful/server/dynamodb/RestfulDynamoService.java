@@ -181,12 +181,10 @@ public abstract class RestfulDynamoService<T> implements JsonService {
         // Validate Item exists first
         if (table.getItem(primaryKey) == null) return null;
 
-        JsonNode node = JsonUtils.validate(body, clazz);
-
         List<AttributeUpdate> updates = new ArrayList<>();
         for (String fieldName : fieldNames) {
-            if (node.has(fieldName)) {
-                Object pojo = JsonUtils.toObject(node.path(fieldName), Object.class);
+            if (body.has(fieldName)) {
+                Object pojo = JsonUtils.toObject(body.path(fieldName), Object.class);
                 Object value = valueConformer.transform(pojo);
                 updates.add(new AttributeUpdate(fieldName).put(value));
             }
