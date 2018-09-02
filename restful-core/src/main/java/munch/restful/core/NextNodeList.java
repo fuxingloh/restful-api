@@ -9,6 +9,8 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
+ * This is a special class that will be automatically converted in JsonResult with data & next node info
+ * <p>
  * Created by: Fuxing
  * Date: 3/5/18
  * Time: 3:04 PM

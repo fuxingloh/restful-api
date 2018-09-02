@@ -1,5 +1,6 @@
 package munch.restful.server;
 
+import munch.restful.core.NextNodeList;
 import spark.Request;
 import spark.Response;
 import spark.Route;
@@ -25,6 +26,11 @@ public interface JsonRoute extends Route {
      */
     Object handle(JsonCall call) throws Exception;
 
+    /**
+     * @see JsonResult auto convert into {meta: {}, contents of JsonResult}
+     * @see Object auto convert into {data: 'Object', meta: {}}
+     * @see NextNodeList auto convert into {data: [], next: {}, meta: {}}
+     */
     @Override
     default JsonResult handle(Request request, Response response) throws Exception {
         Object result = handle(new JsonCall(request, response));
@@ -33,6 +39,13 @@ public interface JsonRoute extends Route {
         if (result instanceof JsonResult) {
             response.status(((JsonResult) result).getCode());
             return (JsonResult) result;
+        }
+
+        if (result instanceof NextNodeList) {
+            JsonResult jsonResult = JsonResult.ok(result);
+            if (((NextNodeList) result).hasNext())
+                jsonResult.put("next", ((NextNodeList) result).getNext());
+            return jsonResult;
         }
 
         if (result == null) return JsonResult.notFound();
