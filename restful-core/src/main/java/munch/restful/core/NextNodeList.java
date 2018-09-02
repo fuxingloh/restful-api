@@ -3,8 +3,10 @@ package munch.restful.core;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * Created by: Fuxing
@@ -16,9 +18,43 @@ public class NextNodeList<T> extends ArrayList<T> {
 
     private JsonNode next;
 
+    /**
+     * NextNodeList without next
+     *
+     * @param c collection to copy over
+     */
+    public NextNodeList(Collection<? extends T> c) {
+        super(c);
+    }
+
+    /**
+     * @param c    collection to copy over
+     * @param next node
+     */
     public NextNodeList(Collection<? extends T> c, JsonNode next) {
         super(c);
         this.next = next;
+    }
+
+    /**
+     * @param c    collection to copy over
+     * @param next node in map, will be converted to JsonNode
+     */
+    public NextNodeList(Collection<? extends T> c, Map<String, Object> next) {
+        super(c);
+        this.next = JsonUtils.toTree(next);
+    }
+
+    /**
+     * @param c      collection to copy over
+     * @param key    of next
+     * @param object of next, nullable
+     */
+    public NextNodeList(Collection<? extends T> c, String key, @Nullable Object object) {
+        super(c);
+        if (object != null) {
+            this.next = JsonUtils.toTree(Map.of(key, object));
+        }
     }
 
     /**
@@ -27,6 +63,40 @@ public class NextNodeList<T> extends ArrayList<T> {
     @JsonIgnore
     public JsonNode getNext() {
         return next;
+    }
+
+    /**
+     * @param key          of value
+     * @param defaultValue to return, Nullable
+     * @return found or defaultValue
+     */
+    @Nullable
+    public String getNextString(String key, @Nullable String defaultValue) {
+        return getNext().path(key).asText(defaultValue);
+    }
+
+    /**
+     * @param key          of value
+     * @param defaultValue to return, Nullable
+     * @return found or defaultValue
+     */
+    @Nullable
+    public Long getNextLong(String key, @Nullable Long defaultValue) {
+        JsonNode value = getNext().path(key);
+        if (!value.isMissingNode() && value.isLong()) return value.asLong();
+        return defaultValue;
+    }
+
+    /**
+     * @param key          of value
+     * @param defaultValue to return, Nullable
+     * @return found or defaultValue
+     */
+    @Nullable
+    public Integer getNextInt(String key, @Nullable Integer defaultValue) {
+        JsonNode value = getNext().path(key);
+        if (!value.isMissingNode() && value.isInt()) return value.asInt();
+        return defaultValue;
     }
 
     /**
