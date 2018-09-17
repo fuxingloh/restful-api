@@ -46,7 +46,6 @@ public class JsonCall {
      * @param <T>   type
      * @return Api session data stored or <code>null</code>
      */
-    @Nullable
     public <T> T get(Class<T> clazz) {
         return request.attribute(clazz.getName());
     }
