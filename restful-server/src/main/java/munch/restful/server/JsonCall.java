@@ -40,6 +40,29 @@ public class JsonCall {
     }
 
     /**
+     * This kinda act as a session data
+     *
+     * @param clazz of session data, name of class will be used for identifier
+     * @param <T>   type
+     * @return Api session data stored or <code>null</code>
+     */
+    @Nullable
+    public <T> T get(Class<T> clazz) {
+        return request.attribute(clazz.getName());
+    }
+
+    /**
+     * This kinda act as a session data
+     *
+     * @param data  to put into session
+     * @param clazz type
+     * @param <T>   type
+     */
+    public <T> void put(T data, Class<T> clazz) {
+        request.attribute(clazz.getName(), data);
+    }
+
+    /**
      * @return Spark request
      */
     public Request request() {
