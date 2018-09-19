@@ -2,6 +2,7 @@ package munch.restful.server.firebase;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import munch.restful.core.exception.AuthenticationException;
 import munch.restful.server.jwt.TokenAuthenticator;
@@ -28,8 +29,14 @@ public final class FirebaseAuthenticator extends TokenAuthenticator<FirebaseAuth
         try {
             FirebaseToken decodedToken = getAuth().verifyIdTokenAsync(decodedJwt.getToken()).get();
             return new FirebaseAuthenticatedToken(decodedJwt, decodedToken);
+
         } catch (InterruptedException | ExecutionException e) {
-            throw new AuthenticationException("Authentication get interrupted.");
+            if (e.getCause() instanceof FirebaseAuthException) {
+                throw new AuthenticationException("FirebaseAuthException: " + ((FirebaseAuthException) e.getCause()).getErrorCode());
+            }
+
+            logger.warn("AuthenticationException", e);
+            throw new AuthenticationException("Authentication got interrupted.");
         } catch (Exception e) {
             logger.warn("Unknown Authentication Exception", e);
             throw new AuthenticationException("Unknown Authentication Exception");
