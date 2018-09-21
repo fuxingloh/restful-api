@@ -17,8 +17,6 @@ import spark.Response;
 import spark.Spark;
 
 import java.net.SocketTimeoutException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
@@ -154,25 +152,25 @@ public class RestfulServer {
         Spark.exception(StructuredException.class, (exception, request, response) -> {
             List<String> sources = ((StructuredException) exception).getSources();
             logger.warn("Structured exception thrown from sources: {}", sources, exception);
-            handleException(response, (StructuredException) exception);
+            handleException(new JsonCall(request, response), (StructuredException) exception);
         });
 
         logger.info("Adding exception handling for TimeoutException.");
         Spark.exception(SocketTimeoutException.class, (exception, request, response) -> {
-            handleException(response, new TimeoutException(exception));
+            handleException(new JsonCall(request, response), new TimeoutException(exception));
         });
 
         logger.info("Adding exception handling for all Exception.");
         Spark.exception(Exception.class, (exception, request, response) -> {
             try {
-                mapException(exception);
+                if (mapException(exception)) return;
                 // Unknown exception
                 logger.warn("Unknown exception thrown", exception);
-                handleException(response, new UnknownException(exception));
+                handleException(new JsonCall(request, response), new UnknownException(exception));
             } catch (StructuredException structured) {
                 // Mapped exception
                 logger.warn("Structured exception thrown", exception);
-                handleException(response, structured);
+                handleException(new JsonCall(request, response), structured);
             }
         });
     }
@@ -181,17 +179,20 @@ public class RestfulServer {
      * If mapped, you can throw it
      *
      * @param exception additional exception to map
+     * @return whether it is handled, meaning not to logg
      * @throws StructuredException mapped exceptions
      */
-    protected void mapException(Exception exception) throws StructuredException {
+    protected boolean mapException(Exception exception) throws StructuredException {
+        return false;
     }
 
     /**
-     * @param response  response to write to
+     * @param call      with request & response
      * @param exception exception to write
      */
-    protected void handleException(Response response, StructuredException exception) {
+    protected void handleException(JsonCall call, StructuredException exception) {
         try {
+            Response response = call.response();
             response.status(exception.getCode());
             RestfulMeta restfulMeta = exception.toMeta();
             if (!debug && restfulMeta.getError() != null) {
