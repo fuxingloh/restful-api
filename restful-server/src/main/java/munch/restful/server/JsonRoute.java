@@ -48,7 +48,10 @@ public interface JsonRoute extends Route {
             return jsonResult;
         }
 
-        if (result == null) return JsonResult.notFound();
+        if (result == null) {
+            response.status(404);
+            return JsonResult.notFound();
+        }
         return JsonResult.ok(result);
     }
 }
