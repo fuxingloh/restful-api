@@ -3,13 +3,11 @@ package munch.restful.client.dynamodb;
 import com.fasterxml.jackson.databind.JsonNode;
 import munch.restful.client.RestfulClient;
 import munch.restful.client.RestfulRequest;
-import munch.restful.client.RestfulResponse;
 import munch.restful.core.JsonUtils;
 import munch.restful.core.NextNodeList;
 
 import javax.annotation.Nullable;
 import java.util.Iterator;
-import java.util.List;
 
 /**
  * Created by: Fuxing
@@ -51,11 +49,7 @@ public abstract class RestfulDynamoClient<T> extends RestfulClient {
             request.queryString("next." + rangeName, nextRange);
         }
 
-        RestfulResponse response = request.asResponse();
-        JsonNode next = response.getNode().path("next");
-
-        List<T> dataList = response.asDataList(clazz);
-        return new NextNodeList<>(dataList, next);
+        return request.asNextNodeList(clazz);
     }
 
     /**

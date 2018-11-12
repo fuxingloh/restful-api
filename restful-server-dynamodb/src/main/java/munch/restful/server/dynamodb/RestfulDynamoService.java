@@ -159,6 +159,17 @@ public abstract class RestfulDynamoService<T> implements JsonService {
         return size;
     }
 
+    protected JsonResult put(Object object) {
+        ValidationException.validate(object);
+        String json = JsonUtils.toString(object);
+        return put(Item.fromJSON(json));
+    }
+
+    protected JsonResult put(Item item) {
+        table.putItem(item);
+        return JsonResult.ok();
+    }
+
     /**
      * @param body       json request body
      * @param primaryKey primary key, hash or hash + range

@@ -6,7 +6,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * This is a special class that will be automatically converted in JsonResult with data & next node info
@@ -107,5 +109,36 @@ public class NextNodeList<T> extends ArrayList<T> {
     @JsonIgnore
     public boolean hasNext() {
         return next != null && !next.isMissingNode();
+    }
+
+    /**
+     * @param function using current NextNode to get the Next List
+     * @return Iterator of NextNodeList Chaining
+     */
+    public Iterator<T> toIterator(Function<JsonNode, NextNodeList<T>> function) {
+        NextNodeList<T> initial = this;
+        return new Iterator<>() {
+            NextNodeList<T> current = initial;
+            Iterator<T> iterator = initial.iterator();
+
+            @Override
+            public boolean hasNext() {
+                if (iterator.hasNext()) return true;
+
+                if (!current.hasNext()) return false;
+
+                current = function.apply(current.getNext());
+                if (current == null) return false;
+                if (current.isEmpty()) return false;
+
+                iterator = current.iterator();
+                return iterator.hasNext();
+            }
+
+            @Override
+            public T next() {
+                return iterator.next();
+            }
+        };
     }
 }

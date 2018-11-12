@@ -5,10 +5,11 @@ allprojects {
     apply plugin: 'maven-publish'
 
     group 'munch.restful'
-    version '2.4.22'
+    version '2.4.24'
 
-    ext.guiceVersion = '4.2.0'
-    ext.awsVersion = '1.11.313'
+    ext.jUnitVersion = '5.2.0'
+    ext.guiceVersion = '4.2.1'
+    ext.awsVersion = '1.11.367'
 
     sourceCompatibility = 1.9
     targetCompatibility = 1.9
@@ -37,7 +38,7 @@ allprojects {
     configurations.all { resolutionStrategy.cacheChangingModulesFor 0, 'seconds' }
 
     dependencies {
-        testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.0.0'
+        testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: jUnitVersion
         testCompile group: 'org.easytesting', name: 'fest-assert', version: '1.4'
 
         compile group: 'com.google.code.findbugs', name: 'annotations', version: '3.0.1u2'
@@ -78,8 +79,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.6+"
-        classpath 'com.bmuschko:gradle-docker-plugin:3.0.12'
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4+"
     }
 }
 
