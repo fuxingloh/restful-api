@@ -7,10 +7,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
 import munch.restful.core.JsonUtils;
 import munch.restful.core.RestfulMeta;
-import munch.restful.core.exception.CodeException;
-import munch.restful.core.exception.StructuredException;
-import munch.restful.core.exception.TimeoutException;
-import munch.restful.core.exception.UnknownException;
+import munch.restful.core.exception.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Response;
@@ -19,6 +16,7 @@ import spark.Spark;
 import java.net.SocketTimeoutException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 
 /**
@@ -31,6 +29,16 @@ public class RestfulServer {
     protected static final Logger logger = LoggerFactory.getLogger(RestfulServer.class);
     protected static final ObjectMapper objectMapper = JsonService.objectMapper;
     protected static final String DEFAULT_HEALTH_PATH = "/health/check";
+
+    protected static final Set<String> MUTED_TYPE = Set.of(
+            AuthenticationException.class.getName(),
+            JsonException.class.getName(),
+            CodeException.class.getName(),
+            LimitException.class.getName(),
+            OfflineException.class.getName(),
+            TimeoutException.class.getName(),
+            UnavailableException.class.getName()
+    );
 
     private final RestfulService[] routers;
     private boolean started = false;
@@ -200,7 +208,13 @@ public class RestfulServer {
                 // Exception will still be logged
                 restfulMeta.getError().setStacktrace(null);
                 restfulMeta.getError().setSources(null);
+
+                // Mute message for theses error type
+                if (MUTED_TYPE.contains(restfulMeta.getError().getType())) {
+                    restfulMeta.getError().setMessage(null);
+                }
             }
+
             ObjectNode metaNode = objectMapper.valueToTree(restfulMeta);
             JsonNode nodes = objectMapper.createObjectNode().set("meta", metaNode);
             response.body(objectMapper.writeValueAsString(nodes));
