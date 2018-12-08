@@ -48,7 +48,7 @@ public class JsonTransformer implements ResponseTransformer {
 
         Map<String, Object> map = result.getMap();
         map.put("meta", Map.of("code", result.getCode()));
-        return JsonUtils.toString(map);
+        return toString(map);
     }
 
     /**
