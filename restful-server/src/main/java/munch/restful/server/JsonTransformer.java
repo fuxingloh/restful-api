@@ -47,15 +47,19 @@ public class JsonTransformer implements ResponseTransformer {
         }
 
         Map<String, Object> map = result.getMap();
-        result.getMap().values().forEach(this::clean);
         map.put("meta", Map.of("code", result.getCode()));
         return JsonUtils.toString(map);
     }
 
     /**
-     * @param object to clean away parameters
+     * Override this method for custom serialization.
+     * - e.g. for simplifying objects
+     *
+     * @param map to convert to string
+     * @return JSON represented in String
      */
-    protected void clean(Object object) {
+    protected String toString(Map<String, Object> map) {
+        return JsonUtils.toString(map);
     }
 
     /**
