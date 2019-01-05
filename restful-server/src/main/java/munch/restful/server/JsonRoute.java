@@ -15,7 +15,7 @@ import spark.Route;
  */
 @FunctionalInterface
 public interface JsonRoute extends Route {
-    String APP_JSON = "application/json";
+    String APP_JSON = "application/json; charset=utf-8";
 
     /**
      * Invoked when a request is made on this route's corresponding path e.g. '/hello'
