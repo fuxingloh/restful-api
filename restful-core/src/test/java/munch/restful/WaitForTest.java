@@ -21,4 +21,9 @@ class WaitForTest {
     void url() throws Exception {
         WaitFor.host("http://internal-corpus-service-data-970545893.ap-southeast-1.elb.amazonaws.com", Duration.ofSeconds(10));
     }
+
+    @Test
+    void localstack() {
+        WaitFor.localstack("http://localhost:8080", Duration.ofSeconds(20));
+    }
 }

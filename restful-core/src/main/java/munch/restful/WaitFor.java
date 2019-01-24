@@ -1,5 +1,9 @@
 package munch.restful;
 
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,6 +19,26 @@ import java.time.Duration;
  */
 public final class WaitFor {
     private static final Logger logger = LoggerFactory.getLogger(WaitFor.class);
+
+    public static void localstack(String dashboardUrl, Duration timeout) {
+        logger.info("Waiting for localstack with url: {} with timeout duration of {}", dashboardUrl, timeout);
+        long startMillis = System.currentTimeMillis();
+        long endMillis = startMillis + timeout.toMillis();
+
+        CloseableHttpClient client = HttpClients.createDefault();
+        while (System.currentTimeMillis() < endMillis) {
+//            int connectionTimeout = (int) (endMillis - System.currentTimeMillis());
+
+            HttpPost httpPost = new HttpPost(dashboardUrl + "/graph");
+            StringEntity entity = new StringEntity("{\"nameFilter\":\".*\",\"awsEnvironment\":\"dev\"}", "utf-8");
+            httpPost.setEntity(entity);
+
+            try {
+                if (client.execute(httpPost).getStatusLine().getStatusCode() == 200) return;
+            } catch (IOException ignored) {
+            }
+        }
+    }
 
     public static void statusOk(String url, Duration timeout) {
         logger.info("Waiting for {} with timeout duration of {}", url, timeout);
