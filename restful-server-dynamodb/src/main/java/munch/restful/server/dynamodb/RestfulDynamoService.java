@@ -1,27 +1,25 @@
 package munch.restful.server.dynamodb;
 
-import com.amazonaws.services.dynamodbv2.document.*;
+import com.amazonaws.services.dynamodbv2.document.Item;
+import com.amazonaws.services.dynamodbv2.document.RangeKeyCondition;
+import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.dynamodbv2.document.api.QueryApi;
-import com.amazonaws.services.dynamodbv2.document.internal.ItemValueConformer;
 import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
-import com.amazonaws.services.dynamodbv2.document.spec.UpdateItemSpec;
-import com.amazonaws.services.dynamodbv2.model.ConditionalCheckFailedException;
-import com.amazonaws.services.dynamodbv2.model.ReturnValue;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import munch.restful.core.JsonUtils;
+import munch.restful.core.NextNodeList;
 import munch.restful.core.exception.ParamException;
 import munch.restful.core.exception.ValidationException;
 import munch.restful.server.JsonCall;
-import munch.restful.server.JsonResult;
 import munch.restful.server.JsonService;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Created by: Fuxing
@@ -30,8 +28,6 @@ import java.util.function.Consumer;
  * Project: munch-partners
  */
 public abstract class RestfulDynamoService<T> implements JsonService {
-    protected static final ItemValueConformer valueConformer = new ItemValueConformer();
-
     protected final Table table;
     protected final Class<T> clazz;
 
@@ -60,11 +56,11 @@ public abstract class RestfulDynamoService<T> implements JsonService {
      * @param call      json call
      * @return JsonNode result to return
      */
-    protected JsonResult list(QueryApi queryApi, String hashName, String rangeName, JsonCall call) {
+    protected NextNodeList<T> list(QueryApi queryApi, String hashName, String rangeName, JsonCall call) {
         return list(queryApi,
                 hashName, call.pathString(hashName),
                 rangeName, call.queryString("next." + rangeName, null),
-                call.queryInt("size", 20)
+                querySize(call)
         );
     }
 
@@ -78,13 +74,13 @@ public abstract class RestfulDynamoService<T> implements JsonService {
      * @return JsonNode result to return
      * @see QueryApi#query(QuerySpec)
      */
-    protected JsonResult list(QueryApi queryApi, String hashName, Object hash, String rangeName, @Nullable Object nextRange, int size) {
+    protected NextNodeList<T> list(QueryApi queryApi, String hashName, Object hash, String rangeName, @Nullable Object nextRange, int size) {
         ParamException.requireNonNull(hashName, hash);
 
         QuerySpec querySpec = new QuerySpec();
         querySpec.withScanIndexForward(false);
         querySpec.withHashKey(hashName, hash);
-        querySpec.withMaxResultSize(resolveSize(size));
+        querySpec.withMaxResultSize(size);
 
         if (nextRange != null) {
             querySpec.withRangeKeyCondition(new RangeKeyCondition(rangeName).lt(nextRange));
@@ -97,13 +93,13 @@ public abstract class RestfulDynamoService<T> implements JsonService {
             dataList.add(toData(item));
         }
 
-        // If no more next
-        JsonResult result = result(200, dataList);
-        if (lastItem == null || dataList.size() != size) return result;
-
-        // Have next, send next object
-        result.put("next", Map.of(rangeName, lastItem.get(rangeName)));
-        return result;
+        if (lastItem == null || dataList.size() != size) {
+            // If no more next
+            return new NextNodeList<>(dataList);
+        } else {
+            // Have next, send next object
+            return new NextNodeList<>(dataList, rangeName, lastItem.get(rangeName));
+        }
     }
 
     /**
@@ -150,75 +146,77 @@ public abstract class RestfulDynamoService<T> implements JsonService {
     }
 
     /**
-     * @param size actual size
-     * @return resolved size, cannot be < 1, and not more then max
+     * @param call to get size
+     * @return size
      */
-    protected int resolveSize(int size) {
-        if (size < 1 || size > maxSize)
-            throw new ParamException("Size cannot be less then 0 or greater than " + maxSize);
-        return size;
+    protected int querySize(JsonCall call) {
+        return call.querySize(20, maxSize);
     }
 
-    protected JsonResult put(T object) {
+    protected abstract T get(JsonCall call);
+
+    /**
+     * @param object to put with validation
+     * @return the same object
+     */
+    protected T put(T object) {
         ValidationException.validate(object);
         String json = JsonUtils.toString(object);
-        return put(Item.fromJSON(json));
-    }
-
-    protected JsonResult put(Item item) {
+        Item item = Item.fromJSON(json);
         table.putItem(item);
-        return JsonResult.ok();
+        return object;
     }
 
     /**
-     * @param body       json request body
-     * @param primaryKey primary key, hash or hash + range
-     * @param fieldNames field names to update
-     * @return Updated Date or Null if don't exist
+     * @param fields available for update
+     * @return a Function to perform patching
      */
-    protected T patch(JsonNode body, PrimaryKey primaryKey, String... fieldNames) {
-        return patch(body, primaryKey, s -> {
-        }, fieldNames);
+    protected Function<JsonCall, T> patch(String... fields) {
+        return call -> patch(call, fields);
     }
 
     /**
-     * @param body         json request body
-     * @param primaryKey   primary key, hash or hash + range
-     * @param specConsumer consume update item spec to change
-     * @param fieldNames   field names to update
-     * @return Updated Date or Null if don't exist
+     * @param call   the json call
+     * @param fields available for update
+     * @return Updated Object
      */
-    protected T patch(JsonNode body, PrimaryKey primaryKey, Consumer<UpdateItemSpec> specConsumer, String... fieldNames) {
-        // Validate Item exists first
-        if (table.getItem(primaryKey) == null) return null;
+    protected T patch(JsonCall call, String... fields) {
+        return patch(call, t -> {
+        }, fields);
+    }
 
-        List<AttributeUpdate> updates = new ArrayList<>();
-        for (String fieldName : fieldNames) {
-            if (body.has(fieldName)) {
-                Object pojo = JsonUtils.toObject(body.path(fieldName), Object.class);
-                Object value = valueConformer.transform(pojo);
-                updates.add(new AttributeUpdate(fieldName).put(value));
-            }
+    /**
+     * @param call     the json call
+     * @param consumer to make anymore changes before the update
+     * @param fields   available for update
+     * @return Updated Object
+     */
+    protected T patch(JsonCall call, Consumer<T> consumer, String... fields) {
+        Objects.requireNonNull(consumer);
+
+        T object = get(call);
+        if (object == null) return null;
+
+        object = patch(object, call.bodyAsJson(), fields);
+        consumer.accept(object);
+        return put(object);
+    }
+
+    /**
+     * @param object to update
+     * @param body   to read update from
+     * @param fields available for update
+     * @return Updated Object
+     */
+    protected T patch(T object, JsonNode body, String... fields) {
+        ObjectNode current = JsonUtils.toTree(object);
+        for (String field : fields) {
+            if (field.equals(hashName)) continue;
+            if (!body.has(field)) continue;
+
+            current.set(field, body.path(field));
         }
 
-        // If no fields, return null
-        if (updates.isEmpty())
-            throw new ParamException("No applicable fields to update. " + Arrays.toString(fieldNames));
-
-        // Create Update item spec
-        UpdateItemSpec spec = new UpdateItemSpec();
-        spec.withPrimaryKey(primaryKey);
-        spec.withReturnValues(ReturnValue.ALL_NEW);
-        spec.withAttributeUpdate(updates);
-
-        // Spec consumer to edit
-        specConsumer.accept(spec);
-
-        try {
-            UpdateItemOutcome outcome = table.updateItem(spec);
-            return toData(outcome.getItem());
-        } catch (ConditionalCheckFailedException e) {
-            return null;
-        }
+        return JsonUtils.toObject(current, clazz);
     }
 }

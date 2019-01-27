@@ -35,9 +35,8 @@ public class ValidationException extends StructuredException {
         super(400, ValidationException.class, "Validation failed on " + key + ", reason: " + reason + ".");
     }
 
-    @SuppressWarnings("unchecked")
     private ValidationException(List<String> reasons) {
-        this(reasons.size() + " checks validation failed.\n" + reasons.stream().collect(Collectors.joining("\n")));
+        this(reasons.size() + " checks validation failed.\n" + String.join("\n", reasons));
         this.reasons = reasons;
     }
 

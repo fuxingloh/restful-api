@@ -1,11 +1,15 @@
 package munch.restful.server.dynamodb;
 
-import com.amazonaws.services.dynamodbv2.document.*;
+import com.amazonaws.services.dynamodbv2.document.DeleteItemOutcome;
+import com.amazonaws.services.dynamodbv2.document.Item;
+import com.amazonaws.services.dynamodbv2.document.KeyAttribute;
+import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.dynamodbv2.document.spec.DeleteItemSpec;
 import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.amazonaws.services.dynamodbv2.model.ReturnValue;
 import com.fasterxml.jackson.databind.JsonNode;
+import munch.restful.core.NextNodeList;
 import munch.restful.core.exception.ParamException;
 import munch.restful.server.JsonCall;
 import munch.restful.server.JsonResult;
@@ -13,7 +17,6 @@ import munch.restful.server.JsonResult;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by: Fuxing
@@ -43,14 +46,13 @@ public abstract class RestfulDynamoHashService<T> extends RestfulDynamoService<T
     }
 
     /**
-     * @param call json call with queryString(hashName), queryString("size")
+     * @param call json call with queryString(hashName)
      * @return JsonNode result
      * @see RestfulDynamoHashService#list(Object, int)
      */
-    protected JsonResult list(JsonCall call) {
+    protected NextNodeList<T> list(JsonCall call) {
         String hash = call.queryString("next." + hashName, null);
-        int size = resolveSize(call.queryInt("size", 20));
-        return list(hash, size);
+        return list(hash, querySize(call));
     }
 
     /**
@@ -60,9 +62,9 @@ public abstract class RestfulDynamoHashService<T> extends RestfulDynamoService<T
      * @see Table#query(QuerySpec)
      * @see QuerySpec#withExclusiveStartKey(KeyAttribute...)
      */
-    protected JsonResult list(Object nextHash, int size) {
+    protected NextNodeList<T> list(Object nextHash, int size) {
         ScanSpec scanSpec = new ScanSpec();
-        scanSpec.withMaxResultSize(resolveSize(size));
+        scanSpec.withMaxResultSize(size);
 
         if (nextHash != null) {
             scanSpec.withExclusiveStartKey(hashName, nextHash);
@@ -75,13 +77,13 @@ public abstract class RestfulDynamoHashService<T> extends RestfulDynamoService<T
             dataList.add(toData(item));
         }
 
-        // If no more next
-        JsonResult result = result(200, dataList);
-        if (lastItem == null || dataList.size() != size) return result;
-
-        // Have next, send next object
-        result.put("next", Map.of(hashName, lastItem.get(hashName)));
-        return result;
+        if (lastItem == null || dataList.size() != size) {
+            // If no more next
+            return new NextNodeList<>(dataList);
+        } else {
+            // Have next, send next object
+            return new NextNodeList<>(dataList, hashName, lastItem.get(hashName));
+        }
     }
 
     /**
@@ -150,15 +152,5 @@ public abstract class RestfulDynamoHashService<T> extends RestfulDynamoService<T
                 .withPrimaryKey(hashName, hash)
                 .withReturnValues(ReturnValue.ALL_OLD));
         return toData(outcome.getItem());
-    }
-
-    /**
-     * @param call       json call
-     * @param fieldNames field names to update
-     * @return Updated Date or Null if don't exist
-     */
-    protected T patch(JsonCall call, String... fieldNames) {
-        PrimaryKey key = new PrimaryKey(hashName, call.pathString(hashName));
-        return patch(call.bodyAsJson(), key, fieldNames);
     }
 }

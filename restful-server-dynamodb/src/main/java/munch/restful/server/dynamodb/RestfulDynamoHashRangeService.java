@@ -7,6 +7,8 @@ import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
 import com.amazonaws.services.dynamodbv2.model.ReturnValue;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import munch.restful.core.JsonUtils;
+import munch.restful.core.NextNodeList;
 import munch.restful.core.exception.ParamException;
 import munch.restful.server.JsonCall;
 import munch.restful.server.JsonResult;
@@ -50,11 +52,11 @@ public abstract class RestfulDynamoHashRangeService<T> extends RestfulDynamoServ
      * @return JsonNode result to return
      * @see RestfulDynamoHashRangeService#list(JsonCall)
      */
-    protected JsonResult list(JsonCall call) {
+    protected NextNodeList<T> list(JsonCall call) {
         return list(table,
                 call.pathString(hashName),
                 call.queryString("next." + rangeName, null),
-                call.queryInt("size", 20));
+                querySize(call));
     }
 
     /**
@@ -66,7 +68,7 @@ public abstract class RestfulDynamoHashRangeService<T> extends RestfulDynamoServ
      * @see QueryApi#query(QuerySpec)
      * @see QuerySpec#withRangeKeyCondition(RangeKeyCondition)
      */
-    protected JsonResult list(QueryApi queryApi, Object hash, @Nullable Object nextRange, int size) {
+    protected NextNodeList<T> list(QueryApi queryApi, Object hash, @Nullable Object nextRange, int size) {
         return list(queryApi, hashName, hash, rangeName, nextRange, size);
     }
 
@@ -146,13 +148,17 @@ public abstract class RestfulDynamoHashRangeService<T> extends RestfulDynamoServ
         return toData(outcome.getItem());
     }
 
-    /**
-     * @param call       json call
-     * @param fieldNames field names to update
-     * @return Updated Date or Null if don't exist
-     */
-    protected T patch(JsonCall call, String... fieldNames) {
-        PrimaryKey key = new PrimaryKey(hashName, call.pathString(hashName), rangeName, call.pathString(rangeName));
-        return patch(call.bodyAsJson(), key, fieldNames);
+    @Override
+    protected T patch(T object, JsonNode body, String... fields) {
+        ObjectNode current = JsonUtils.toTree(object);
+        for (String field : fields) {
+            if (field.equals(hashName)) continue;
+            if (field.equals(rangeName)) continue;
+            if (!body.has(field)) continue;
+
+            current.set(field, body.path(field));
+        }
+
+        return JsonUtils.toObject(current, clazz);
     }
 }
