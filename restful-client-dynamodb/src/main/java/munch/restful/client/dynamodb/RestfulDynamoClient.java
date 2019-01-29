@@ -38,9 +38,9 @@ public abstract class RestfulDynamoClient<T> extends RestfulClient {
      * @param rangeName name of range
      * @param nextRange value
      * @param size      per list
-     * @return PagedList of Data or Empty
+     * @return RestfulRequest for chaining
      */
-    protected NextNodeList<T> doList(String path, String hashName, Object hash, String rangeName, @Nullable Object nextRange, int size) {
+    protected RestfulRequest doListRequest(String path, String hashName, Object hash, String rangeName, @Nullable Object nextRange, int size) {
         RestfulRequest request = doGet(path);
         request.path(hashName, hash);
         request.queryString("size", size);
@@ -48,7 +48,20 @@ public abstract class RestfulDynamoClient<T> extends RestfulClient {
         if (nextRange != null) {
             request.queryString("next." + rangeName, nextRange);
         }
+        return request;
+    }
 
+    /**
+     * @param path      for querying list, e.g. /resources/{hash}
+     * @param hashName  name of hash
+     * @param hash      value
+     * @param rangeName name of range
+     * @param nextRange value
+     * @param size      per list
+     * @return PagedList of Data or Empty
+     */
+    protected NextNodeList<T> doList(String path, String hashName, Object hash, String rangeName, @Nullable Object nextRange, int size) {
+        RestfulRequest request = doListRequest(path, hashName, hash, rangeName, nextRange, size);
         return request.asNextNodeList(clazz);
     }
 
