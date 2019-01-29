@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import munch.restful.core.JsonUtils;
 import munch.restful.core.NextNodeList;
+import munch.restful.core.exception.ConflictException;
 import munch.restful.core.exception.ParamException;
 import munch.restful.core.exception.ValidationException;
 import munch.restful.server.JsonCall;
@@ -155,6 +156,8 @@ public abstract class RestfulDynamoService<T> implements JsonService {
 
     protected abstract T get(JsonCall call);
 
+    protected abstract T get(Item item);
+
     /**
      * @param object to put with validation
      * @return the same object
@@ -163,6 +166,21 @@ public abstract class RestfulDynamoService<T> implements JsonService {
         ValidationException.validate(object);
         String json = JsonUtils.toString(object);
         Item item = Item.fromJSON(json);
+        table.putItem(item);
+        return object;
+    }
+
+    /**
+     * @param object to put with data and key validation, key validation check that existing keys don't exist.
+     * @return the same object.
+     */
+    protected T post(T object) {
+        ValidationException.validate(object);
+        String json = JsonUtils.toString(object);
+        Item item = Item.fromJSON(json);
+
+        if (get(item) != null) throw new ConflictException("Key already exists");
+
         table.putItem(item);
         return object;
     }

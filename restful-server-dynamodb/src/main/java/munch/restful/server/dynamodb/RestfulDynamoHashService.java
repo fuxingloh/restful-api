@@ -108,6 +108,10 @@ public abstract class RestfulDynamoHashService<T> extends RestfulDynamoService<T
         return toData(item);
     }
 
+    protected T get(Item item) {
+        return get(item.get(hashName));
+    }
+
     /**
      * @param call json call with pathString(hashName) and request body
      * @return Meta200 if successful

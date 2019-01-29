@@ -96,6 +96,10 @@ public abstract class RestfulDynamoHashRangeService<T> extends RestfulDynamoServ
         return toData(item);
     }
 
+    protected T get(Item item) {
+        return get(item.get(hashName), item.get(rangeName));
+    }
+
     /**
      * @param call json call with pathString(hashName), pathString(rangeName), and request body
      * @return Object saved
