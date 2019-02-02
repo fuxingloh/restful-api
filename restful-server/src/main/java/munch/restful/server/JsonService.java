@@ -14,8 +14,6 @@ import spark.Spark;
  * @see munch.restful.core.RestfulMeta for structure for meta
  */
 public interface JsonService extends RestfulService {
-    String APP_JSON = "application/json";
-
     ObjectMapper objectMapper = JsonUtils.objectMapper;
 
     JsonTransformer toJson = new JsonTransformer();

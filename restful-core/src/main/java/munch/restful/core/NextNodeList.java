@@ -4,11 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * This is a special class that will be automatically converted in JsonResult with data & next node info
@@ -140,5 +138,18 @@ public class NextNodeList<T> extends ArrayList<T> {
                 return iterator.next();
             }
         };
+    }
+
+    /**
+     * @param mapper function mapper
+     * @param <R>    Mapped type
+     * @return Mapped NextNodeList
+     */
+    public <R> NextNodeList<R> map(Function<T, R> mapper) {
+        List<R> collected = this.stream()
+                .map(mapper)
+                .collect(Collectors.toList());
+
+        return new NextNodeList<>(collected, getNext());
     }
 }

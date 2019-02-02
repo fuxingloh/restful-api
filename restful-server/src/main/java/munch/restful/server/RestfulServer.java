@@ -150,7 +150,7 @@ public class RestfulServer {
                 ObjectNode nodes = objectMapper.createObjectNode();
                 nodes.putObject("meta").put("code", code);
                 response.body(objectMapper.writeValueAsString(nodes));
-                response.type(JsonService.APP_JSON);
+                response.type(JsonRoute.APP_JSON);
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }
@@ -218,7 +218,7 @@ public class RestfulServer {
             ObjectNode metaNode = objectMapper.valueToTree(restfulMeta);
             JsonNode nodes = objectMapper.createObjectNode().set("meta", metaNode);
             response.body(objectMapper.writeValueAsString(nodes));
-            response.type(JsonService.APP_JSON);
+            response.type(JsonRoute.APP_JSON);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
