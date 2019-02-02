@@ -6,9 +6,11 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import munch.restful.core.JsonUtils;
+import munch.restful.core.exception.BadRequestException;
 import munch.restful.core.exception.CodeException;
 import munch.restful.core.exception.JsonException;
 import munch.restful.core.exception.ParamException;
+import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 import spark.Request;
 import spark.Response;
@@ -312,6 +314,33 @@ public class JsonCall {
         }
 
         throw new IllegalStateException(clazz.getSimpleName() + " is not implemented for queryObject()");
+    }
+
+    /**
+     * Will return default if not present or enum match not found.
+     *
+     * @param name  of enum
+     * @param clazz to bound Object to
+     * @param <E>   Enum class
+     * @return enum
+     */
+    public <E extends Enum<E>> E queryEnum(String name, Class<E> clazz, E defaultValue) {
+        E num = EnumUtils.getEnum(clazz, queryString(name, defaultValue.name()));
+        if (num != null) return num;
+        return defaultValue;
+    }
+
+    /**
+     * @param name  of enum
+     * @param clazz to bound Object to
+     * @param <E>   Enum class
+     * @return enum
+     */
+    public <E extends Enum<E>> E queryEnum(String name, Class<E> clazz) {
+        E num = EnumUtils.getEnum(clazz, queryString(name));
+        if (num != null) return num;
+
+        throw new BadRequestException("Enum " + name + " is invalid.");
     }
 
     /**
