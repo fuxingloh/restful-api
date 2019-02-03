@@ -55,7 +55,7 @@ public abstract class RestfulDynamoService<T> implements JsonService {
      * @param hashName  name of hash key
      * @param rangeName name of range key
      * @param call      json call
-     * @return JsonNode result to return
+     * @return NextNodeList
      */
     protected NextNodeList<T> list(QueryApi queryApi, String hashName, String rangeName, JsonCall call) {
         return list(queryApi,
@@ -63,6 +63,40 @@ public abstract class RestfulDynamoService<T> implements JsonService {
                 rangeName, call.queryString("next." + rangeName, null),
                 querySize(call)
         );
+    }
+
+
+    /**
+     * @param queryApi  index to query
+     * @param hashName  name of hash key
+     * @param rangeName name of range key
+     * @param lo        low of range key, (begins with)
+     * @param hi        end of range key, (beings with + ending)
+     * @param call      json call
+     * @return NextNodeList
+     */
+    protected NextNodeList<T> list(QueryApi queryApi, String hashName, String rangeName, String lo, String hi, JsonCall call) {
+        QuerySpec querySpec = new QuerySpec();
+        querySpec.withScanIndexForward(false);
+        querySpec.withHashKey(hashName, call.pathString(hashName));
+        querySpec.withMaxResultSize(querySize(call));
+
+        String nextRange = call.queryString("next." + rangeName, null);
+        if (nextRange != null) {
+            querySpec.withRangeKeyCondition(
+                    new RangeKeyCondition("sourceSortId").between(
+                            nextRange,
+                            hi)
+            );
+            querySpec.withRangeKeyCondition(new RangeKeyCondition(rangeName).lt(nextRange));
+        } else {
+            querySpec.withRangeKeyCondition(
+                    new RangeKeyCondition(rangeName)
+                            .beginsWith(lo)
+            );
+        }
+
+        return query(queryApi, querySpec, rangeName);
     }
 
     /**
@@ -87,6 +121,10 @@ public abstract class RestfulDynamoService<T> implements JsonService {
             querySpec.withRangeKeyCondition(new RangeKeyCondition(rangeName).lt(nextRange));
         }
 
+        return query(queryApi, querySpec, rangeName);
+    }
+
+    protected NextNodeList<T> query(QueryApi queryApi, QuerySpec querySpec, String rangeName) {
         List<T> dataList = new ArrayList<>();
         Item lastItem = null;
         for (Item item : queryApi.query(querySpec)) {
@@ -94,7 +132,7 @@ public abstract class RestfulDynamoService<T> implements JsonService {
             dataList.add(toData(item));
         }
 
-        if (lastItem == null || dataList.size() != size) {
+        if (lastItem == null || dataList.size() != querySpec.getMaxResultSize()) {
             // If no more next
             return new NextNodeList<>(dataList);
         } else {
