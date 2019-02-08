@@ -65,17 +65,15 @@ public abstract class RestfulDynamoService<T> implements JsonService {
         );
     }
 
-
     /**
-     * @param queryApi  index to query
-     * @param hashName  name of hash key
-     * @param rangeName name of range key
-     * @param lo        low of range key, (begins with)
-     * @param hi        end of range key, (beings with + ending)
-     * @param call      json call
+     * @param queryApi   index to query
+     * @param hashName   name of hash key
+     * @param rangeName  name of range key
+     * @param beginsWith low of range key, (begins with)
+     * @param call       json call
      * @return NextNodeList
      */
-    protected NextNodeList<T> list(QueryApi queryApi, String hashName, String rangeName, String lo, String hi, JsonCall call) {
+    protected NextNodeList<T> list(QueryApi queryApi, String hashName, String rangeName, String beginsWith, JsonCall call) {
         QuerySpec querySpec = new QuerySpec();
         querySpec.withScanIndexForward(false);
         querySpec.withHashKey(hashName, call.pathString(hashName));
@@ -83,12 +81,16 @@ public abstract class RestfulDynamoService<T> implements JsonService {
 
         String nextRange = call.queryString("next." + rangeName, null);
         if (nextRange != null) {
+            String hi = nextRange.substring(0, nextRange.length() - 1);
+            char last = nextRange.charAt(nextRange.length() - 1);
+            last -= 1;
+
             querySpec.withRangeKeyCondition(
-                    new RangeKeyCondition(rangeName).between(nextRange, hi)
+                    new RangeKeyCondition(rangeName).between(beginsWith, hi + "" + last)
             );
         } else {
             querySpec.withRangeKeyCondition(
-                    new RangeKeyCondition(rangeName).beginsWith(lo)
+                    new RangeKeyCondition(rangeName).beginsWith(beginsWith)
             );
         }
 
