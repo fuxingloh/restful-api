@@ -84,15 +84,11 @@ public abstract class RestfulDynamoService<T> implements JsonService {
         String nextRange = call.queryString("next." + rangeName, null);
         if (nextRange != null) {
             querySpec.withRangeKeyCondition(
-                    new RangeKeyCondition("sourceSortId").between(
-                            nextRange,
-                            hi)
+                    new RangeKeyCondition(rangeName).between(nextRange, hi)
             );
-            querySpec.withRangeKeyCondition(new RangeKeyCondition(rangeName).lt(nextRange));
         } else {
             querySpec.withRangeKeyCondition(
-                    new RangeKeyCondition(rangeName)
-                            .beginsWith(lo)
+                    new RangeKeyCondition(rangeName).beginsWith(lo)
             );
         }
 
