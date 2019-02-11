@@ -344,13 +344,30 @@ public class JsonCall {
     }
 
     /**
-     * @param name name of path param
+     * @param name of path param
      * @return Long value
      * @throws ParamException path param not found
      */
     public long pathLong(String name) throws ParamException {
         try {
             String value = pathString(name);
+            return Long.parseLong(value);
+        } catch (NumberFormatException e) {
+            throw new ParamException(name);
+        }
+    }
+
+    /**
+     * @param name         of path param
+     * @param defaultValue if not found
+     * @return Long value
+     * @throws ParamException if param not Long
+     */
+    public Long pathLong(String name, Long defaultValue) throws ParamException {
+        try {
+            String value = pathString(name);
+            if (value == null) return defaultValue;
+
             return Long.parseLong(value);
         } catch (NumberFormatException e) {
             throw new ParamException(name);
@@ -372,6 +389,23 @@ public class JsonCall {
     }
 
     /**
+     * @param name         of path param
+     * @param defaultValue if not found
+     * @return Integer value
+     * @throws ParamException if param not Long
+     */
+    public Integer pathInt(String name, Integer defaultValue) throws ParamException {
+        try {
+            String value = pathString(name);
+            if (value == null) return defaultValue;
+
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            throw new ParamException(name);
+        }
+    }
+
+    /**
      * @param name name of path param
      * @return Double value
      * @throws ParamException path param not found
@@ -379,6 +413,23 @@ public class JsonCall {
     public double pathDouble(String name) throws ParamException {
         try {
             String value = pathString(name);
+            return Double.parseDouble(value);
+        } catch (NumberFormatException e) {
+            throw new ParamException(name);
+        }
+    }
+
+    /**
+     * @param name         of path param
+     * @param defaultValue if not found
+     * @return Double value
+     * @throws ParamException if param not long
+     */
+    public Double pathDouble(String name, Double defaultValue) throws ParamException {
+        try {
+            String value = pathString(name);
+            if (value == null) return defaultValue;
+
             return Double.parseDouble(value);
         } catch (NumberFormatException e) {
             throw new ParamException(name);
@@ -396,6 +447,17 @@ public class JsonCall {
             return value;
         }
         throw new ParamException(name);
+    }
+
+    /**
+     * @param name         of path param
+     * @param defaultValue if not found
+     * @return String value, or default
+     */
+    public String pathString(String name, String defaultValue) {
+        String value = request.params(name);
+        if (value != null) return value;
+        return defaultValue;
     }
 
     /**

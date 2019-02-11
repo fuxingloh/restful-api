@@ -33,7 +33,14 @@ public interface JsonRoute extends Route {
      */
     @Override
     default JsonResult handle(Request request, Response response) throws Exception {
-        Object result = handle(new JsonCall(request, response));
+        return handle(request, response, this::handle);
+    }
+
+    /**
+     * Static handler for implementing classes to override
+     */
+    static JsonResult handle(Request request, Response response, Handler handler) throws Exception {
+        Object result = handler.handle(new JsonCall(request, response));
         response.type(APP_JSON);
 
         if (result instanceof JsonResult) {
@@ -53,5 +60,9 @@ public interface JsonRoute extends Route {
             return JsonResult.notFound();
         }
         return JsonResult.ok(result);
+    }
+
+    interface Handler {
+        Object handle(JsonCall call) throws Exception;
     }
 }
