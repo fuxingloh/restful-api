@@ -5,7 +5,7 @@ allprojects {
     apply plugin: 'maven-publish'
 
     group 'munch.restful'
-    version '2.5.12'
+    version '2.5.13'
 
     ext.jUnitVersion = '5.3.2'
     ext.guiceVersion = '4.2.2'
@@ -79,7 +79,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4+"
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.8+"
     }
 }
 

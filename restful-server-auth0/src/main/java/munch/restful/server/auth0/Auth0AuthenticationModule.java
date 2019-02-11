@@ -17,10 +17,16 @@ import javax.inject.Singleton;
 public final class Auth0AuthenticationModule extends AbstractModule {
     private final String audience;
     private final String issuer;
+    private final long leeway;
 
     public Auth0AuthenticationModule(String audience, String issuer) {
+        this(audience, issuer, 0);
+    }
+
+    public Auth0AuthenticationModule(String audience, String issuer, long leeway) {
         this.audience = audience;
         this.issuer = issuer;
+        this.leeway = leeway;
     }
 
     @Provides
@@ -32,6 +38,8 @@ public final class Auth0AuthenticationModule extends AbstractModule {
     @Provides
     @Singleton
     TokenAuthenticator provideAuthenticator(JwkProvider jwkProvider) {
-        return new Auth0Authenticator(jwkProvider, audience, issuer);
+        Auth0Authenticator authenticator = new Auth0Authenticator(jwkProvider, audience, issuer);
+        authenticator.setLeeway(leeway);
+        return authenticator;
     }
 }

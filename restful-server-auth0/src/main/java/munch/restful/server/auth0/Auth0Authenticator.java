@@ -24,16 +24,23 @@ public final class Auth0Authenticator extends TokenAuthenticator {
 
     private final JwkProvider jwkProvider;
 
+    private long leeway = 0;
+
     public Auth0Authenticator(JwkProvider jwkProvider, String audience, String issuer) {
         this.jwkProvider = jwkProvider;
         this.audience = audience;
         this.issuer = issuer;
     }
 
+    public void setLeeway(long leeway) {
+        this.leeway = leeway;
+    }
+
     private JWTVerifier providerForRS256(RSAPublicKey key) {
         return JWT.require(Algorithm.RSA256(key, null))
                 .withIssuer(issuer)
                 .withAudience(audience)
+                .acceptLeeway(leeway)
                 .build();
     }
 
