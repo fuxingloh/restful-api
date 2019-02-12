@@ -13,7 +13,7 @@ import spark.Spark;
  *
  * @see munch.restful.core.RestfulMeta for structure for meta
  */
-public interface JsonService<R extends JsonRoute> extends RestfulService {
+public interface JsonService extends RestfulService {
     ObjectMapper objectMapper = JsonUtils.objectMapper;
 
     JsonTransformer toJson = new JsonTransformer();
@@ -49,7 +49,7 @@ public interface JsonService<R extends JsonRoute> extends RestfulService {
      * @param path  the path
      * @param route json route
      */
-    default void GET(String path, R route) {
+    default void GET(String path, JsonRoute route) {
         Spark.get(path, route, toJson());
     }
 
@@ -59,7 +59,7 @@ public interface JsonService<R extends JsonRoute> extends RestfulService {
      * @param path  the path
      * @param route json route
      */
-    default void POST(String path, R route) {
+    default void POST(String path, JsonRoute route) {
         Spark.post(path, route, toJson());
     }
 
@@ -70,7 +70,7 @@ public interface JsonService<R extends JsonRoute> extends RestfulService {
      * @param acceptType the request accept type
      * @param route      json node route
      */
-    default void POST(String path, String acceptType, R route) {
+    default void POST(String path, String acceptType, JsonRoute route) {
         Spark.post(path, acceptType, route, toJson);
     }
 
@@ -80,7 +80,7 @@ public interface JsonService<R extends JsonRoute> extends RestfulService {
      * @param path  the path
      * @param route json route
      */
-    default void PUT(String path, R route) {
+    default void PUT(String path, JsonRoute route) {
         Spark.put(path, route, toJson());
     }
 
@@ -91,7 +91,7 @@ public interface JsonService<R extends JsonRoute> extends RestfulService {
      * @param acceptType the request accept type
      * @param route      json node route
      */
-    default void PUT(String path, String acceptType, R route) {
+    default void PUT(String path, String acceptType, JsonRoute route) {
         Spark.put(path, acceptType, route, toJson);
     }
 
@@ -101,7 +101,7 @@ public interface JsonService<R extends JsonRoute> extends RestfulService {
      * @param path  the path
      * @param route json route
      */
-    default void DELETE(String path, R route) {
+    default void DELETE(String path, JsonRoute route) {
         Spark.delete(path, route, toJson());
     }
 
@@ -111,7 +111,7 @@ public interface JsonService<R extends JsonRoute> extends RestfulService {
      * @param path  the path
      * @param route json route
      */
-    default void HEAD(String path, R route) {
+    default void HEAD(String path, JsonRoute route) {
         Spark.head(path, route, toJson());
     }
 
@@ -121,7 +121,7 @@ public interface JsonService<R extends JsonRoute> extends RestfulService {
      * @param path  the path
      * @param route json route
      */
-    default void PATCH(String path, R route) {
+    default void PATCH(String path, JsonRoute route) {
         Spark.patch(path, route, toJson());
     }
 
