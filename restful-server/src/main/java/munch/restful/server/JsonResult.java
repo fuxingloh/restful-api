@@ -1,5 +1,7 @@
 package munch.restful.server;
 
+import munch.restful.core.NextNodeList;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,6 +36,14 @@ public class JsonResult {
     public JsonResult put(String name, Object object) {
         map.put(name, object);
         return this;
+    }
+
+    public static JsonResult ok(NextNodeList list) {
+        JsonResult result = ok(list);
+        if (list.hasNext()) {
+            result.put("next", list.getNext());
+        }
+        return result;
     }
 
     /**

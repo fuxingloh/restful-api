@@ -295,6 +295,11 @@ public class JsonCall {
         if (StringUtils.isBlank(value)) return defaultValue;
         if (clazz == String.class) return (T) value;
 
+        return parseObject(name, value, clazz);
+    }
+
+    @SuppressWarnings({"unchecked", "WrapperTypeMayBePrimitive"})
+    private static <T> T parseObject(String name, String value, Class<T> clazz) {
         try {
             if (clazz == Long.class) {
                 Long i = Long.parseLong(value);
@@ -313,7 +318,7 @@ public class JsonCall {
             return (T) b;
         }
 
-        throw new IllegalStateException(clazz.getSimpleName() + " is not implemented for queryObject()");
+        throw new IllegalStateException(clazz.getSimpleName() + " is not implemented for parseObject()");
     }
 
     /**
@@ -341,6 +346,32 @@ public class JsonCall {
         if (num != null) return num;
 
         throw new BadRequestException("Enum " + name + " is invalid.");
+    }
+
+    /**
+     * @param name  of next params
+     * @param clazz type
+     * @return next object or null
+     */
+    @Nullable
+    public <T> T queryNext(String name, Class<T> clazz) {
+        return queryObject("next." + name, null, clazz);
+    }
+
+    /**
+     * @param name         of query string
+     * @param defaultValue to return if not found
+     * @param clazz        class to bound Object to
+     * @param <T>          T
+     * @return Object value
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T pathObject(String name, T defaultValue, Class<T> clazz) {
+        String value = request.params(name);
+        if (StringUtils.isBlank(value)) return defaultValue;
+        if (clazz == String.class) return (T) value;
+
+        return parseObject(name, value, clazz);
     }
 
     /**
