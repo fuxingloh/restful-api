@@ -76,7 +76,7 @@ public abstract class RestfulDynamoService<T> implements JsonService {
      */
     protected NextNodeList<T> list(QueryApi queryApi, String hashName, Class<?> hashClass, String rangeName, Class<?> rangeClass, JsonCall call) {
         return list(queryApi,
-                hashName, call.queryObject(hashName, null, hashClass),
+                hashName, call.pathObject(hashName, null, hashClass),
                 rangeName, call.queryNext(rangeName, rangeClass),
                 querySize(call)
         );
