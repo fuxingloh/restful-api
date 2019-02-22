@@ -39,7 +39,7 @@ public class JsonResult {
     }
 
     public static JsonResult ok(NextNodeList list) {
-        JsonResult result = ok(list);
+        JsonResult result = of(200).put("data", list);
         if (list.hasNext()) {
             result.put("next", list.getNext());
         }
