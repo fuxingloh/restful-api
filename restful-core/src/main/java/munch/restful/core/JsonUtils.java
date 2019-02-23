@@ -41,6 +41,24 @@ public final class JsonUtils {
     /**
      * Exactly the same as
      * <pre>
+     *     ObjectNode root = createObjectNode();
+     *     root.set(name, node);
+     *     return root;
+     * </pre>
+     *
+     * @param name to name to node to be wrapped
+     * @param node to wrap
+     * @return wrapped node
+     */
+    public static ObjectNode wrap(String name, JsonNode node) {
+        ObjectNode root = createObjectNode();
+        root.set(name, node);
+        return root;
+    }
+
+    /**
+     * Exactly the same as
+     * <pre>
      *     ObjectMapper mapper = new ObjectMapper();
      *     ArrayNode arrayNode = mapper.createArrayNode();
      * </pre>
