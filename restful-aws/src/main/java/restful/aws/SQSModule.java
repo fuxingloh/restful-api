@@ -25,22 +25,22 @@ public final class SQSModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        Config config = ConfigFactory.load().getConfig("services.sqs");
-        if (config.hasPath("url")) {
+        Config config = ConfigFactory.load().getConfig("services.aws");
+        if (config.hasPath("sqs.url")) {
             requestInjection(this);
         }
     }
 
     @Inject
     void setup() {
-        String url = ConfigFactory.load().getString("services.sqs.url");
-        WaitFor.host(url, Duration.ofSeconds(60));
+        if (!ConfigFactory.load().hasPath("services.localstack.dashboard.url")) return;
+        WaitFor.localstack(ConfigFactory.load().getString("services.localstack.dashboard.url"), Duration.ofSeconds(120));
     }
 
     @Provides
     @Singleton
     AmazonSQS provideAmazonSQS() {
-        Config config = ConfigFactory.load().getConfig("services.sqs");
+        Config config = ConfigFactory.load().getConfig("services.aws.sqs");
 
         if (config.hasPath("url")) {
             return AmazonSQSClientBuilder.standard()

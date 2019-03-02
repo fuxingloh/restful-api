@@ -26,8 +26,9 @@ public final class DynamoModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        Config config = ConfigFactory.load().getConfig("services.dynamodb");
-        if (config.hasPath("url")) {
+        Config config = ConfigFactory.load().getConfig("services.aws");
+
+        if (config.hasPath("dynamodb.url")) {
             requestInjection(this);
         }
     }
@@ -41,7 +42,7 @@ public final class DynamoModule extends AbstractModule {
     @Provides
     @Singleton
     AmazonDynamoDB provideAmazonDynamoDB() {
-        Config config = ConfigFactory.load().getConfig("services.dynamodb");
+        Config config = ConfigFactory.load().getConfig("services.aws.dynamodb");
         if (config.hasPath("url")) {
             return AmazonDynamoDBClientBuilder.standard()
                     .withEndpointConfiguration(
