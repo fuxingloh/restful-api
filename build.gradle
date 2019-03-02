@@ -5,11 +5,11 @@ allprojects {
     apply plugin: 'maven-publish'
 
     group 'munch.restful'
-    version '2.7.3'
+    version '3.0-SNAPSHOT'
 
     ext.jUnitVersion = '5.3.2'
     ext.guiceVersion = '4.2.2'
-    ext.awsVersion = '1.11.486'
+    ext.awsVersion = '1.11.508'
 
     sourceCompatibility = 1.9
     targetCompatibility = 1.9
@@ -39,9 +39,8 @@ allprojects {
 
     dependencies {
         testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: jUnitVersion
-        testCompile group: 'org.easytesting', name: 'fest-assert', version: '1.4'
 
-        compile group: 'com.google.code.findbugs', name: 'annotations', version: '3.0.1u2'
+        compile group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
     }
 }
 

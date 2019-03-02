@@ -1,4 +1,4 @@
 dependencies {
-    compile project(':restful-server')
+    compile project(':restful-core')
     compile project(':restful-aws')
 }

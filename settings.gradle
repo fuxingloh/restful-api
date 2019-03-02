@@ -2,6 +2,10 @@ rootProject.name = 'restful-api'
 
 include 'restful-core'
 
+// AWS common modules for mocking and production
+// DynamoDB, SQS, SNS
+include 'restful-aws'
+
 include 'restful-client'
 include 'restful-client-dynamodb'
 
@@ -11,3 +15,4 @@ include 'restful-server-auth0'
 include 'restful-server-firebase'
 include 'restful-server-dynamodb'
 
+include 'restful-messaging'

@@ -1,0 +1,8 @@
+dependencies {
+    compile project(':restful-core')
+    compile group: 'com.google.inject', name: 'guice', version: guiceVersion
+
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-dynamodb', version: awsVersion
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-sqs', version: awsVersion
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-sns', version: awsVersion
+}

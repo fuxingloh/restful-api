@@ -3,5 +3,5 @@ dependencies {
     compile project(':restful-server-jwt')
     compile group: 'com.google.inject', name: 'guice', version: guiceVersion
 
-    compile group: 'com.auth0', name: 'auth0', version: '1.5.0'
+    compile group: 'com.auth0', name: 'auth0', version: '1.10.0'
 }
