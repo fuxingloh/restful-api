@@ -101,6 +101,17 @@ public class JsonCall {
     }
 
     /**
+     * This method allows functional chaining
+     *
+     * @param mapper to convert json call into object
+     * @param <T>    converted Type
+     * @return converted Object
+     */
+    public <T> T bodyAsMapped(Function<JsonCall, T> mapper) {
+        return mapper.apply(this);
+    }
+
+    /**
      * @return request body as json object
      */
     public <T> T bodyAsObject(Class<T> clazz) {
