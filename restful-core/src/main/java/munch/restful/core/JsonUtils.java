@@ -11,6 +11,7 @@ import munch.restful.core.exception.JsonException;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -28,19 +29,6 @@ public final class JsonUtils {
     /**
      * Exactly the same as
      * <pre>
-     *     ObjectMapper mapper = new ObjectMapper();
-     *     ObjectNode objectNode = mapper.createObjectNode();
-     * </pre>
-     *
-     * @return newly created ObjectNode
-     */
-    public static ObjectNode createObjectNode() {
-        return objectMapper.createObjectNode();
-    }
-
-    /**
-     * Exactly the same as
-     * <pre>
      *     ObjectNode root = createObjectNode();
      *     root.set(name, node);
      *     return root;
@@ -54,6 +42,29 @@ public final class JsonUtils {
         ObjectNode root = createObjectNode();
         root.set(name, node);
         return root;
+    }
+
+    /**
+     * @param rootConsumer to manipulate the created ObjectNode
+     * @return created ObjectNode
+     */
+    public static ObjectNode createObjectNode(Consumer<ObjectNode> rootConsumer) {
+        ObjectNode objectNode = createObjectNode();
+        rootConsumer.accept(objectNode);
+        return objectNode;
+    }
+
+    /**
+     * Exactly the same as
+     * <pre>
+     *     ObjectMapper mapper = new ObjectMapper();
+     *     ObjectNode objectNode = mapper.createObjectNode();
+     * </pre>
+     *
+     * @return newly created ObjectNode
+     */
+    public static ObjectNode createObjectNode() {
+        return objectMapper.createObjectNode();
     }
 
     /**
