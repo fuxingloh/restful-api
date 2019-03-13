@@ -9,5 +9,12 @@ package munch.restful.server;
 @FunctionalInterface
 public interface RequestRoute<T> {
 
-    Object handle(JsonCall call, T request);
+    /**
+     * Invoked when a request is made on this route's corresponding path e.g. '/hello'
+     *
+     * @param call Call object contains request and response object
+     * @return The content to be set in the response
+     * @throws java.lang.Exception implementation can choose to throw exception
+     */
+    Object handle(JsonCall call, T request) throws Exception;
 }
