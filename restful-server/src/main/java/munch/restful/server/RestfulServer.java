@@ -17,6 +17,7 @@ import java.net.SocketTimeoutException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 /**
@@ -271,6 +272,21 @@ public class RestfulServer {
      */
     public RestfulServer withHealth(Function<JsonCall, String> check) {
         return withHealth(DEFAULT_HEALTH_PATH, check);
+    }
+
+    /**
+     * @param runnable run a task, if task completes or fail, health will fail too
+     * @return RestfulServer
+     */
+    public RestfulServer withHealth(Runnable runnable) {
+        CompletableFuture<Void> future = CompletableFuture.runAsync(runnable);
+
+        return withHealth(DEFAULT_HEALTH_PATH, call -> {
+            if (future.isDone()) return JsonTransformer.Meta404String;
+            if (future.isCancelled()) return JsonTransformer.Meta404String;
+            if (future.isCompletedExceptionally()) return JsonTransformer.Meta404String;
+            return JsonTransformer.Meta200String;
+        });
     }
 
     /**
