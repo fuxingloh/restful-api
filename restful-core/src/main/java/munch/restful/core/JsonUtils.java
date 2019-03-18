@@ -97,8 +97,20 @@ public final class JsonUtils {
      *
      * @param json JSON String
      * @return JsonNode
+     * @deprecated use stringToTree, readTree is too fucking confusing
      */
+    @Deprecated
     public static JsonNode readTree(String json) {
+        return jsonToTree(json);
+    }
+
+    /**
+     * Read json string to JsonNode
+     *
+     * @param json JSON String
+     * @return JsonNode
+     */
+    public static JsonNode jsonToTree(String json) {
         try {
             return objectMapper.readTree(json);
         } catch (IOException e) {
@@ -110,8 +122,19 @@ public final class JsonUtils {
      * @param object POJO into JsonNode
      * @param <T>    Node Type
      * @return JsonNode
+     * @deprecated use valueToTree, readTree is too fucking confusing
      */
+    @Deprecated
     public static <T extends JsonNode> T toTree(Object object) {
+        return valueToTree(object);
+    }
+
+    /**
+     * @param object POJO into JsonNode
+     * @param <T>    Node Type
+     * @return JsonNode
+     */
+    public static <T extends JsonNode> T valueToTree(Object object) {
         return objectMapper.valueToTree(object);
     }
 
