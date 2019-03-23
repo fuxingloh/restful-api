@@ -280,6 +280,10 @@ public class RestfulServer {
      */
     public RestfulServer withHealth(Runnable runnable) {
         CompletableFuture<Void> future = CompletableFuture.runAsync(runnable);
+        future.exceptionally(throwable -> {
+            logger.error("HealthCheck Future Exception:", throwable);
+            return null;
+        });
 
         return withHealth(DEFAULT_HEALTH_PATH, call -> {
             if (future.isDone()) {
@@ -303,6 +307,7 @@ public class RestfulServer {
      * @return RestfulServer
      */
     public RestfulServer withHealth(String path, Function<JsonCall, String> check) {
+        logger.info("Registered withHealth at path: {}", path);
         Spark.get(path, (req, res) -> check.apply(new JsonCall(req, res)));
         return this;
     }
