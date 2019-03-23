@@ -282,9 +282,9 @@ public class RestfulServer {
         CompletableFuture<Void> future = CompletableFuture.runAsync(runnable);
 
         return withHealth(DEFAULT_HEALTH_PATH, call -> {
-            if (future.isDone()) return JsonTransformer.Meta404String;
-            if (future.isCancelled()) return JsonTransformer.Meta404String;
-            if (future.isCompletedExceptionally()) return JsonTransformer.Meta404String;
+            if (future.isDone()) {
+                throw new CodeException(400);
+            }
             return JsonTransformer.Meta200String;
         });
     }
