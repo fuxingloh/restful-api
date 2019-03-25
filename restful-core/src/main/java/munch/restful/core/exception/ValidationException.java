@@ -2,6 +2,7 @@ package munch.restful.core.exception;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
+import munch.restful.core.JsonUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.ConstraintViolation;
@@ -40,6 +41,16 @@ public class ValidationException extends StructuredException {
         this.reasons = reasons;
     }
 
+    /**
+     * @param reasons for user to see
+     * @param object  converted into json as Stacktrace
+     */
+    private ValidationException(List<String> reasons, Object object) {
+        this(reasons.size() + " checks validation failed.\n" + String.join("\n", reasons), JsonUtils.toString(object));
+        this.reasons = reasons;
+
+    }
+
     private ValidationException(String reason) {
         super(400, ValidationException.class, reason);
     }
@@ -68,7 +79,7 @@ public class ValidationException extends StructuredException {
                     return path.toString() + ": " + message;
                 })
                 .collect(Collectors.toList());
-        throw new ValidationException(reasons);
+        throw new ValidationException(reasons, object);
 
     }
 
