@@ -9,11 +9,14 @@ package munch.restful.core.exception;
 public final class ForbiddenException extends StructuredException {
     static {
         ExceptionParser.registerRoot(ForbiddenException.class, ForbiddenException::new);
-
     }
 
     ForbiddenException(StructuredException e) {
         super(e);
+    }
+
+    public ForbiddenException() {
+        this("Forbidden");
     }
 
     /**
